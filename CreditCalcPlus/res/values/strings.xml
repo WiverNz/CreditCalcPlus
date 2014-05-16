@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">CreditCalcPlus</string>
+    <string name="TITLE_MAIN">Главная</string>
+    <string name="TITLE_TABLE">Таблица</string>
+    <string name="TITLE_GRAPHIC">График</string>
+    <string name="TITLE_HISTORY">История</string>
+    <string name="action_settings">Settings</string>
+    <string name="etSumma">Кредит</string>
+    <string name="etPercent">Ставка %</string>
+    <string name="etPeriod">Срок в месяцах</string>
+    <string name="btnSaveHistory">Сохранить в историю</string>
+    <string name="btnClose">Закрыть</string>
+
+</resources>
