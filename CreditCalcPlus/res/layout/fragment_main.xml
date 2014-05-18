@@ -2,104 +2,238 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/linearLayout1"
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="30dp"
-        android:layout_marginRight="30dp"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="120dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="@string/etSumma">
-        </TextView>
-
-		<EditText
-		    android:layout_width="match_parent"
-		    android:id="@+id/summa"
-		    android:layout_height="wrap_content"
-		    android:hint=""
-		    android:inputType="numberSigned" 
-		    android:layout_gravity="right">
-		</EditText>
-	</LinearLayout>
-    <LinearLayout
-        android:id="@+id/linearLayout2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
+        android:layout_gravity="center_vertical"
         android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:text="@string/tvTypeOfCredit"
+        android:textSize="16sp">
+    </TextView>
+	<RadioGroup
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
-        android:orientation="horizontal">
+	    android:orientation="vertical"
+	    android:id="@+id/rgTypeOfCredit">
+	    <RadioButton 
+	        android:layout_width="wrap_content"
+	        android:layout_height="20dp"
+	        android:checked="true"
+	        android:text="@string/rbAnnuity"
+	        android:textSize="12sp"
+	        android:id="@+id/rbAnnuity">
+	    </RadioButton>
+	    <RadioButton 
+	        android:layout_width="wrap_content"
+	        android:layout_height="20dp"
+	        android:checked="false"
+	        android:text="@string/rbVaried"
+	        android:textSize="12sp"
+	        android:id="@+id/rbVaried">
+	    </RadioButton>
+	</RadioGroup>
+	<LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"        
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:orientation="horizontal"
+        android:id="@+id/linearLayout1">
         <TextView
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="@string/etPercent">
+            android:text="@string/tvSumma">
         </TextView>
-
 		<EditText
-		    android:id="@+id/percent"
-		    android:layout_width="match_parent"
-		    android:layout_height="wrap_content"
-		    android:layout_gravity="right"
+			style="@style/EditText_numberSigned"
 		    android:hint=""
-		    android:inputType="numberDecimal" >
-
+			android:id="@+id/etSumma">
 		</EditText>
 	</LinearLayout>
-    <LinearLayout
-        android:id="@+id/linearLayout3"
+	<LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"        
         android:layout_marginLeft="30dp"
-        android:layout_marginTop="10dp"
         android:layout_marginRight="30dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:id="@+id/linearLayout2">
         <TextView
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="@string/etPeriod">
+            android:text="@string/tvPercent">
         </TextView>
-
 		<EditText
-		    android:layout_width="match_parent"
-		    android:id="@+id/period"
-		    android:layout_height="wrap_content"
+		    style="@style/EditText_numberDecimal"
 		    android:hint=""
-		    android:inputType="numberSigned" 
-		    android:layout_gravity="right">
+			android:id="@+id/etPercent">
 		</EditText>
 	</LinearLayout>
     <LinearLayout
-        android:id="@+id/linearLayout4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"        
         android:layout_marginLeft="30dp"
-        android:layout_marginTop="30dp"
         android:layout_marginRight="30dp"
-        android:orientation="vertical">
+        android:orientation="horizontal"
+        android:id="@+id/linearLayout3">
+        <TextView
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/tvPeriod">
+        </TextView>
+		<EditText
+		    style="@style/EditText_numberSigned"
+		    android:hint=""
+			android:id="@+id/etPeriod">
+		</EditText>
+	</LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"        
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:orientation="horizontal"
+        android:id="@+id/linearLayout4">
+        <TextView
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/tvFirstDate">
+        </TextView>
+
+		<EditText
+		    android:id="@+id/etFirstDate"
+		    style="@style/EditText_date"
+		    android:hint="">
+
+		</EditText>
+	</LinearLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginTop="2dp"
+        android:gravity="center"
+        android:text="@string/tvAnticipatedRepayment"
+        android:textSize="16sp" >
+    </TextView>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginTop="0dp"
+        android:gravity="center"
+        android:text="@string/tvTypeOfRepayment"
+        android:textSize="16sp">
+    </TextView>
+	<RadioGroup
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+	    android:orientation="vertical"
+	    android:id="@+id/rgTypeOfRepayment">
+	    <RadioButton 
+	        android:layout_width="wrap_content"
+	        android:layout_height="20dp"
+	        android:checked="true"
+	        android:text="@string/rbPartRepPeriod"
+	        android:textSize="14sp"
+	        android:id="@+id/rbPartRepPeriod">
+	    </RadioButton>
+	    <RadioButton 
+	        android:layout_width="wrap_content"
+	        android:layout_height="20dp"
+	        android:checked="false"
+	        android:text="@string/rbPartRepDebt"
+	        android:textSize="14sp"
+	        android:id="@+id/rbPartRepDebt">
+	    </RadioButton>
+	</RadioGroup>
+	<LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"        
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:orientation="horizontal"
+        android:id="@+id/linearLayout5">
+        <TextView
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/tvPartRepDate">
+        </TextView>
+		<EditText
+		    style="@style/EditText_date"
+		    android:hint=""
+		    android:id="@+id/etPartRepDate">
+		</EditText>
+	</LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"        
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:orientation="horizontal"
+        android:id="@+id/linearLayout6">
+        <TextView
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/tvPartRepSumm">
+        </TextView>
+		<EditText
+		    style="@style/EditText_numberSigned"
+		    android:hint=""
+			android:id="@+id/etPartRepSumm">
+		</EditText>
+	</LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"        
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:orientation="horizontal"
+        android:id="@+id/linearLayout7">
         <Button
-            android:id="@+id/btnSaveHistory"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
             android:layout_gravity="center_horizontal"
-            android:text="@string/btnSaveHistory" >
+            android:text="@string/btnSaveHistory"
+            android:textSize="12sp"
+			android:id="@+id/btnSaveHistory">
         </Button>
-
         <Button
-            android:id="@+id/btnClose"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
             android:layout_gravity="center_horizontal"
-            android:text="@string/btnClose" >
+            android:text="@string/btnSettings"
+            android:textSize="12sp"
+            android:id="@+id/btnSettings">
+        </Button>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/btnClose"
+            android:textSize="12sp"
+            android:id="@+id/btnClose">
         </Button>
     </LinearLayout>
-
 </LinearLayout>

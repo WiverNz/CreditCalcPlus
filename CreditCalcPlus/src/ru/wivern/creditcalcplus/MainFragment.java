@@ -1,5 +1,9 @@
 package ru.wivern.creditcalcplus;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -7,29 +11,48 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnKeyListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
+import android.app.DatePickerDialog.OnDateSetListener;
 
-public class MainFragment extends Fragment implements OnClickListener, OnEditorActionListener {
+// скрыть клавиатуру при вводе даты
+// получить результат datepicker для каждого edittext
+public class MainFragment extends Fragment implements OnClickListener, OnEditorActionListener, OnDateSetListener, OnTouchListener {
 	/**
      * The fragment argument representing the section number for this
      * fragment.
      */
     private static final String ARG_SECTION_NUMBER = "section_number";
+    public static final int DATE_DIALOG_ID = 1;
+    RadioGroup rgTypeOfCredit;
     EditText etSumma;
     EditText etPercent;
     EditText etPeriod;
+    EditText etFirstDate;
+    
+    EditText etCurrSelectedDateForm;
+    
+    RadioGroup rgTypeOfRepayment;
+    EditText etPartRepDate;
+    EditText etPartRepSumm;
     
     Button btnSaveHistory;
     Button btnClose;
+    Button btnSettings;
+    
     IUpdateData updInterface;
+    
+    DatePickerFragment m_datePicker;
     /**
      * Returns a new instance of this fragment for the given section
      * number.
@@ -63,53 +86,77 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         
-        etSumma = (EditText) rootView.findViewById(R.id.summa);
+        rgTypeOfCredit = (RadioGroup) rootView.findViewById(R.id.rgTypeOfCredit);
+        
+        etSumma = (EditText) rootView.findViewById(R.id.etSumma);
         etSumma.setOnEditorActionListener(this);
         
-        etPercent = (EditText) rootView.findViewById(R.id.percent);
+        etPercent = (EditText) rootView.findViewById(R.id.etPercent);
         etPercent.setOnEditorActionListener(this);
         
-        etPeriod = (EditText) rootView.findViewById(R.id.period);
+        etPeriod = (EditText) rootView.findViewById(R.id.etPeriod);
         etPeriod.setOnEditorActionListener(this);
-       
-//        TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-//        textView.setText(Integer.toString(getArguments().getInt(ARG_SECTION_NUMBER)));
+
+        etFirstDate = (EditText) rootView.findViewById(R.id.etFirstDate);
+        etFirstDate.setOnTouchListener(this);
+        etFirstDate.setOnEditorActionListener(this);
+        
+        rgTypeOfRepayment = (RadioGroup) rootView.findViewById(R.id.rgTypeOfRepayment);
+        
+        etPartRepDate = (EditText) rootView.findViewById(R.id.etPartRepDate);
+        etPartRepDate.setOnTouchListener(this);
+        etPartRepDate.setOnEditorActionListener(this); 
+        
+        etPartRepSumm = (EditText) rootView.findViewById(R.id.etPartRepSumm);
+        etPartRepDate.setOnEditorActionListener(this);
         
         btnSaveHistory = (Button) rootView.findViewById(R.id.btnSaveHistory);
         btnSaveHistory.setOnClickListener(this);
         
+        btnSettings = (Button) rootView.findViewById(R.id.btnSettings);
+        btnSettings.setOnClickListener(this);
+        
         btnClose = (Button) rootView.findViewById(R.id.btnClose);
         btnClose.setOnClickListener(this);
+        
+        m_datePicker = new DatePickerFragment();
+        
+        etCurrSelectedDateForm = null;
         
         return rootView;
     }
 
 	@Override
-	public void onClick(View arg0) {
-		switch(arg0.getId())
+	public void onClick(View view) {
+		switch(view.getId())
 		{
 		case R.id.btnSaveHistory:
+			Toast.makeText(getActivity(), "Пока не работает", Toast.LENGTH_SHORT).show();
+			break;
+		case R.id.btnSettings:
 			Toast.makeText(getActivity(), "Пока не работает", Toast.LENGTH_SHORT).show();
 			break;
 		case R.id.btnClose:
 			Toast.makeText(getActivity(), "Пока не работает", Toast.LENGTH_SHORT).show();
 			break;
 		}
-		if (updInterface != null)
-		{
-			updInterface.UpdateInputData(MainActivity.TYPE_ANNUITY, 1, 2, 3.4);
-		}
 	}
 	
 	@Override
 	public boolean onEditorAction(TextView tv, int arg1, KeyEvent arg2) {
+		int currType			= -1;
 		int currValSumma		= -1;
 		int currValPeriod		= -1;
 		double currValPercent	= -1;
+		Date currValFirstDate	= null;
+		int currTypeOfRepayment	= -1;
+		Date currValPartRepDate	= null;
+		int currValPartRepSumm	= -1;
+		
 		String currText = tv.getText().toString();
 		switch(tv.getId())
 		{
-		case R.id.summa:
+		case R.id.etSumma:
 			if(TextUtils.isEmpty(currText) == false)
 			{
 				currValSumma = Integer.parseInt(currText);
@@ -119,7 +166,7 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 				currValSumma = 0;
 			}
 			break;
-		case R.id.percent:
+		case R.id.etPercent:
 			if(TextUtils.isEmpty(currText) == false)
 			{
 				currValPercent = Double.parseDouble(currText);
@@ -129,7 +176,7 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 				currValPercent = 0;
 			}
 			break;
-		case R.id.period:
+		case R.id.etPeriod:
 			if(TextUtils.isEmpty(currText) == false)
 			{
 				currValPeriod = Integer.parseInt(currText);
@@ -139,11 +186,116 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 				currValPeriod = 0;
 			}
 			break;
+		case R.id.etFirstDate:
+			if(TextUtils.isEmpty(currText) == false)
+			{
+				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US);  
+				try {
+					currValFirstDate = format.parse(currText); 
+				} catch (java.text.ParseException e) {
+					e.printStackTrace();
+				}
+			}
+			break;
+		case R.id.etPartRepDate:
+			if(TextUtils.isEmpty(currText) == false)
+			{
+				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US);  
+				try {
+					currValPartRepDate = format.parse(currText); 
+				} catch (java.text.ParseException e) {
+					e.printStackTrace();
+				}
+			}
+			break;
+		case R.id.etPartRepSumm:
+			if(TextUtils.isEmpty(currText) == false)
+			{
+				currValPartRepSumm = Integer.parseInt(currText);
+			}
+			else
+			{
+				currValPartRepSumm = 0;
+			}
+			break;
 		}
-		updInterface.UpdateInputData(MainActivity.TYPE_ANNUITY, currValPeriod, currValSumma, currValPercent);
+		switch(rgTypeOfCredit.getCheckedRadioButtonId())
+		{
+		case R.id.rbAnnuity:
+			currType = MainActivity.TYPE_ANNUITY;
+			break;
+		case R.id.rbVaried:
+			currType = MainActivity.TYPE_DIFFERENTIATED;
+			break;
+		}
+		
+		switch(rgTypeOfRepayment.getCheckedRadioButtonId())
+		{
+		case R.id.rbPartRepPeriod:
+			currTypeOfRepayment = MainActivity.TYPE_PR_PERIOD;
+			break;
+		case R.id.rbPartRepDebt:
+			currTypeOfRepayment = MainActivity.TYPE_PR_DEBT;
+			break;
+		}
+		
+		updInterface.UpdateInputData(currType, currValPeriod, currValSumma, currValPercent, currValFirstDate, currTypeOfRepayment, currValPartRepDate, currValPartRepSumm);
 
 		Log.d(MainActivity.LOG_TAG, "onEditorAction currValPeriod = " + currValPeriod);
 		
 		return false;
+	}
+	
+	@Override
+	public void onDateSet(DatePicker view, int year, int monthOfYear,
+			int dayOfMonth) {
+
+		Log.d(MainActivity.LOG_TAG, "Date = " + year + " month " + monthOfYear);
+		if(etCurrSelectedDateForm != null)	// need to change this
+		{
+			etCurrSelectedDateForm.setText(year + "-" + monthOfYear + "-" + dayOfMonth);
+		}
+	}
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
+		String currTitle = "";
+		switch(event.getAction())
+		{
+		case MotionEvent.ACTION_UP:
+			switch(v.getId())
+			{
+			case R.id.etFirstDate:
+				if(TextUtils.isEmpty(currTitle) == true)
+				{
+					currTitle = this.getString(R.string.tvFirstDate);
+					etCurrSelectedDateForm = etFirstDate;
+				}
+			case R.id.etPartRepDate:
+				if(TextUtils.isEmpty(currTitle) == true)
+				{
+					currTitle = this.getString(R.string.tvPartRepDate);
+					etCurrSelectedDateForm = etPartRepDate;
+				}
+				
+				Calendar calender = Calendar.getInstance();
+				Bundle args = new Bundle();
+				args.putInt("year", calender.get(Calendar.YEAR));
+				args.putInt("month", calender.get(Calendar.MONTH));
+				args.putInt("day", calender.get(Calendar.DAY_OF_MONTH));
+				args.putInt("id", v.getId());
+				m_datePicker.setArguments(args);
+
+				m_datePicker.setCallBack((OnDateSetListener) this);
+				m_datePicker.show(getFragmentManager(), currTitle);
+				break;
+			}
+			break;
+		}
+		
+		return false;
+	}
+	
+	public void hideSoftKeyboard() {
+
 	}
 }

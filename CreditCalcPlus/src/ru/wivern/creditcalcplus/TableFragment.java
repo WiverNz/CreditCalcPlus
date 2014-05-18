@@ -6,7 +6,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 public class TableFragment extends Fragment {
     /**
@@ -35,8 +34,7 @@ public class TableFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_table, container, false);
-        TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-        textView.setText(Integer.toString(getArguments().getInt(ARG_SECTION_NUMBER)));
+
         return rootView;
     }
     

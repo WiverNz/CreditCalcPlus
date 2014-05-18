@@ -1,6 +1,7 @@
 package ru.wivern.creditcalcplus;
 
 
+import java.util.Date;
 import java.util.Locale;
 
 import android.support.v7.app.ActionBarActivity;
@@ -12,16 +13,9 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-// define для каждого окна 
-// и обработчик.
-// взаимодействие между фрагментами.
+
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, IUpdateData {
 	private static final int MAIN_FRAGMENT		= 0;
 	private static final int TABLE_FRAGMENT		= 1;
@@ -31,30 +25,25 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 	private static final int COUNT_FRAGMENTS	= HISTORY_FRAGMENT + 1;
 	
 	public static final int TYPE_ANNUITY		= 0;
-	public static final int DIFFERENTIATED		= 1;
+	public static final int TYPE_DIFFERENTIATED	= 1;
+	
+	public static final int TYPE_PR_PERIOD	= 0;
+	public static final int TYPE_PR_DEBT	= 1;
 	
 	private int m_type;
 	private int m_period;
 	private int m_summa;
 	private double m_percent;
-	
+	private Date m_date;
+	private int m_typePartRep;
+	private Date m_partRepDate;
+	private int m_partRepSumm;
 	private Fragment m_listFragment[];
 	
 	public static final String LOG_TAG = "LOG_INFO";
 	
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
     SectionsPagerAdapter mSectionsPagerAdapter;
 
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
     ViewPager mViewPager;
 
     @Override
@@ -100,7 +89,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
 	@Override
-	public void UpdateInputData(int type, int period, int summa, double percent) {
+	public void UpdateInputData(int type, int period, int summa, double percent, Date date, int typePR, Date prDate, int prSumm) {
 		if(type >= 0)
 		{
 			m_type		= type;
@@ -117,7 +106,25 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 		{
 			m_percent	= percent;
 		}
-		Log.d(LOG_TAG, "UpdateInputData type = " + m_type + " period = " + m_period + " summa = " + m_summa + " percent = " + m_percent);
+		if(date != null)
+		{
+			m_date = date;
+		}
+		if(typePR >= 0)
+		{
+			m_typePartRep = typePR;
+		}
+		if(prDate != null)
+		{
+			m_partRepDate = prDate;
+		}
+		if(prSumm >= 0)
+		{
+			m_partRepSumm = prSumm;
+		}
+
+		Log.d(LOG_TAG, "UpdateInputData type " + m_type + " period " + m_period + " summa " + m_summa + " percent " + m_percent
+				+ " date " + m_date + " typePR " + m_typePartRep + " partRepDate " + m_partRepDate + " partRepSumm " + m_partRepSumm);
 	}
     
     @Override
