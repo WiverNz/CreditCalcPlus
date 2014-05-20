@@ -163,10 +163,18 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     		}
     		break;
         case TABLE_FRAGMENT:
+        	IUpdateData updInterface = null;
         	TableFragment tf = (TableFragment) m_listFragment[TABLE_FRAGMENT];
-    		if (tf != null)
+    		try {
+    			updInterface = (IUpdateData) tf;
+    		} catch (ClassCastException e) {
+    			throw new ClassCastException(tf.toString()
+    					+ " must implement IUpdateData");
+    		}
+    		
+    		if (tf != null && updInterface != null)
     		{
-    			tf.UpdateTable(m_summa);
+    			updInterface.UpdateInputData(m_type, m_period, m_summa, m_percent, m_date, m_typePartRep, m_partRepDate, m_partRepSumm);
     		}
     		break;
         case GRAPHIC_FRAGMENT:
