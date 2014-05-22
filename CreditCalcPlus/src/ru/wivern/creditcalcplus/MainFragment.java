@@ -150,14 +150,7 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 	
 	@Override
 	public boolean onEditorAction(TextView tv, int arg1, KeyEvent arg2) {
-		int currType				= -1;
-		int currValSumma			= -1;
-		int currValPeriod			= -1;
-		double currValPercent		= -1;
-		Calendar currValFirstDate	= Calendar.getInstance();
-		int currTypeOfRepayment		= -1;
-		Calendar currValPartRepDate	= Calendar.getInstance();
-		int currValPartRepSumm		= -1;
+		UpdateStruct upd_struct = new UpdateStruct();
 		
 		String currText = tv.getText().toString();
 		switch(tv.getId())
@@ -165,31 +158,31 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 		case R.id.etSumma:
 			if(TextUtils.isEmpty(currText) == false)
 			{
-				currValSumma = Integer.parseInt(currText);
+				upd_struct.summa = Integer.parseInt(currText);
 			}
 			else
 			{
-				currValSumma = 0;
+				upd_struct.summa = 0;
 			}
 			break;
 		case R.id.etPercent:
 			if(TextUtils.isEmpty(currText) == false)
 			{
-				currValPercent = Double.parseDouble(currText);
+				upd_struct.percent = Double.parseDouble(currText);
 			}
 			else
 			{
-				currValPercent = 0;
+				upd_struct.percent = 0;
 			}
 			break;
 		case R.id.etPeriod:
 			if(TextUtils.isEmpty(currText) == false)
 			{
-				currValPeriod = Integer.parseInt(currText);
+				upd_struct.period = Integer.parseInt(currText);
 			}
 			else
 			{
-				currValPeriod = 0;
+				upd_struct.period = 0;
 			}
 			break;
 		case R.id.etFirstDate:
@@ -197,7 +190,7 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 			{
 				//SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US);  
 				try {
-					currValFirstDate.setTime(m_date_format.parse(currText)); 
+					upd_struct.date.setTime(m_date_format.parse(currText)); 
 				} catch (java.text.ParseException e) {
 					e.printStackTrace();
 				}
@@ -208,7 +201,7 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 			{
 				//SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US);  
 				try {
-					currValPartRepDate.setTime(m_date_format.parse(currText)); 
+					upd_struct.partRepDate.setTime(m_date_format.parse(currText)); 
 				} catch (java.text.ParseException e) {
 					e.printStackTrace();
 				}
@@ -217,37 +210,37 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 		case R.id.etPartRepSumm:
 			if(TextUtils.isEmpty(currText) == false)
 			{
-				currValPartRepSumm = Integer.parseInt(currText);
+				upd_struct.partRepSumm = Integer.parseInt(currText);
 			}
 			else
 			{
-				currValPartRepSumm = 0;
+				upd_struct.partRepSumm = 0;
 			}
 			break;
 		}
 		switch(rgTypeOfCredit.getCheckedRadioButtonId())
 		{
 		case R.id.rbAnnuity:
-			currType = MainActivity.TYPE_ANNUITY;
+			upd_struct.type = MainActivity.TYPE_ANNUITY;
 			break;
 		case R.id.rbVaried:
-			currType = MainActivity.TYPE_DIFFERENTIATED;
+			upd_struct.type = MainActivity.TYPE_DIFFERENTIATED;
 			break;
 		}
 		
 		switch(rgTypeOfRepayment.getCheckedRadioButtonId())
 		{
 		case R.id.rbPartRepPeriod:
-			currTypeOfRepayment = MainActivity.TYPE_PR_PERIOD;
+			upd_struct.typePartRep = MainActivity.TYPE_PR_PERIOD;
 			break;
 		case R.id.rbPartRepDebt:
-			currTypeOfRepayment = MainActivity.TYPE_PR_DEBT;
+			upd_struct.typePartRep = MainActivity.TYPE_PR_DEBT;
 			break;
 		}
 		
-		updInterface.UpdateInputData(currType, currValPeriod, currValSumma, currValPercent, currValFirstDate, currTypeOfRepayment, currValPartRepDate, currValPartRepSumm);
+		updInterface.UpdateInputData(upd_struct);
 
-		Log.d(MainActivity.LOG_TAG, "onEditorAction currValPeriod = " + currValPeriod);
+		Log.d(MainActivity.LOG_TAG, "onEditorAction currValPeriod = " + upd_struct.period);
 		
 		return false;
 	}
@@ -305,9 +298,8 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 
 	}
 	@Override
-	public void UpdateInputData(int type, int period, int summa,
-			double percent, Calendar date, int typePR, Calendar prDate, int prSumm) {
-	    switch(type)
+	public void UpdateInputData(UpdateStruct upd_struct) {
+	    switch(upd_struct.type)
 	    {
 	    case MainActivity.TYPE_ANNUITY:
 	    	rgTypeOfCredit.check(R.id.rbAnnuity);
@@ -316,12 +308,12 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 	    	rgTypeOfCredit.check(R.id.rbVaried);
 	    	break;
 	    }
-	    etSumma.setText(Integer.toString(summa));;
-	    etPercent.setText(Double.toString(percent));;
-	    etPeriod.setText(Integer.toString(period));;
-	    etFirstDate.setText(m_date_format.format(date.getTime()));
+	    etSumma.setText(Integer.toString(upd_struct.summa));;
+	    etPercent.setText(Double.toString(upd_struct.percent));;
+	    etPeriod.setText(Integer.toString(upd_struct.period));;
+	    etFirstDate.setText(m_date_format.format(upd_struct.date.getTime()));
 	    
-	    switch(typePR)
+	    switch(upd_struct.typePartRep)
 	    {
 	    case MainActivity.TYPE_PR_PERIOD:
 	    	rgTypeOfRepayment.check(R.id.rbPartRepPeriod);
@@ -330,8 +322,8 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 	    	rgTypeOfRepayment.check(R.id.rbPartRepDebt);
 			break;
 	    }
-	    etPartRepDate.setText(m_date_format.format(prDate.getTime()));;
-	    etPartRepSumm.setText(Integer.toString(prSumm));;
+	    etPartRepDate.setText(m_date_format.format(upd_struct.partRepDate.getTime()));;
+	    etPartRepSumm.setText(Integer.toString(upd_struct.partRepSumm));;
 		
 	}
 }

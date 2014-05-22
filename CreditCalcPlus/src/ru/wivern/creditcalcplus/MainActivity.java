@@ -31,14 +31,17 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 	public static final int TYPE_PR_PERIOD	= 0;
 	public static final int TYPE_PR_DEBT	= 1;
 	
-	private int m_type;
-	private int m_period;
-	private int m_summa;
-	private double m_percent;
-	private Calendar m_date;
-	private int m_typePartRep;
-	private Calendar m_partRepDate;
-	private int m_partRepSumm;
+//	private int m_type;
+//	private int m_period;
+//	private int m_summa;
+//	private double m_percent;
+//	private Calendar m_date;
+//	private int m_typePartRep;
+//	private Calendar m_partRepDate;
+//	private int m_partRepSumm;
+	
+	private UpdateStruct m_data = new UpdateStruct();
+	
 	private Fragment m_listFragment[];
 	
 	public static final String LOG_TAG = "LOG_INFO";
@@ -95,54 +98,54 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
 	private void SetTestData() {
-		m_type			= MainActivity.TYPE_ANNUITY;
-		m_period		= 24;
-		m_summa			= 120000;
-		m_percent		= 15.9;
-		m_date			= Calendar.getInstance();
-		m_date.set(2014, 3, 27);
-		m_typePartRep	= MainActivity.TYPE_PR_DEBT;
-		m_partRepDate	= Calendar.getInstance();
-		m_partRepSumm	= 0;
+		m_data.type			= MainActivity.TYPE_ANNUITY;
+		m_data.period		= 24;
+		m_data.summa		= 120000;
+		m_data.percent		= 15.9;
+		m_data.date			= Calendar.getInstance();
+		m_data.date.set(2014, 3, 27);
+		m_data.typePartRep	= MainActivity.TYPE_PR_DEBT;
+		m_data.partRepDate	= Calendar.getInstance();
+		m_data.partRepSumm	= 0;
 	}
 
 	@Override
-	public void UpdateInputData(int type, int period, int summa, double percent, Calendar date, int typePR, Calendar prDate, int prSumm) {
-		if(type >= 0)
+	public void UpdateInputData(UpdateStruct upd_struct) {
+		if(upd_struct.type >= 0)
 		{
-			m_type		= type;
+			m_data.type		= upd_struct.type;
 		}
-		if(period >= 0)
+		if(upd_struct.period >= 0)
 		{
-			m_period	= period;
+			m_data.period	= upd_struct.period;
 		}
-		if(summa >= 0)
+		if(upd_struct.summa >= 0)
 		{
-			m_summa		= summa;
+			m_data.summa		= upd_struct.summa;
 		}
-		if(percent >= 0)
+		if(upd_struct.percent >= 0)
 		{
-			m_percent	= percent;
+			m_data.percent	= upd_struct.percent;
 		}
-		if(date != null)
+		if(upd_struct.date != null)
 		{
-			m_date = date;
+			m_data.date = upd_struct.date;
 		}
-		if(typePR >= 0)
+		if(upd_struct.typePartRep >= 0)
 		{
-			m_typePartRep = typePR;
+			m_data.typePartRep = upd_struct.typePartRep;
 		}
-		if(prDate != null)
+		if(upd_struct.partRepDate != null)
 		{
-			m_partRepDate = prDate;
+			m_data.partRepDate = upd_struct.partRepDate;
 		}
-		if(prSumm >= 0)
+		if(upd_struct.partRepSumm >= 0)
 		{
-			m_partRepSumm = prSumm;
+			m_data.partRepSumm = upd_struct.partRepSumm;
 		}
 
-		Log.d(LOG_TAG, "UpdateInputData type " + m_type + " period " + m_period + " summa " + m_summa + " percent " + m_percent
-				+ " date " + m_date + " typePR " + m_typePartRep + " partRepDate " + m_partRepDate + " partRepSumm " + m_partRepSumm);
+		Log.d(LOG_TAG, "UpdateInputData type " + m_data.type + " period " + m_data.period + " summa " + m_data.summa + " percent " + m_data.percent
+				+ " date " + m_data.date + " typePR " + m_data.typePartRep + " partRepDate " + m_data.partRepDate + " partRepSumm " + m_data.partRepSumm);
 	}
     
     @Override
@@ -185,7 +188,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     		
     		if (updInterface != null)
     		{
-    			updInterface.UpdateInputData(m_type, m_period, m_summa, m_percent, m_date, m_typePartRep, m_partRepDate, m_partRepSumm);
+    			updInterface.UpdateInputData(m_data);
     		}
         }
     }

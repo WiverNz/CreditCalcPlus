@@ -8,6 +8,7 @@ import java.util.Collections;
 
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -49,6 +50,7 @@ public class TableFragment extends Fragment implements IUpdateData {
     private int m_numbOfLines = 0;
     
     ArrayList<String> m_colNamesArrayList = new ArrayList<String>();
+    public static AsyncUpdate m_au = null;
     /**
      * Returns a new instance of this fragment for the given section
      * number.
@@ -81,49 +83,119 @@ public class TableFragment extends Fragment implements IUpdateData {
     }
 
 	@Override
-	public void UpdateInputData(int type, int period, int summa,
-			double percent, Calendar date, int typePR, Calendar prDate, int prSumm) {
-		int i;		
-		for(i=0; i<m_numbOfLines; i++)
+	public void UpdateInputData(UpdateStruct upd_struct) {
+		if(m_au != null)
 		{
-			m_data.get(i).clear();
+			m_au.cancel(false);
+			m_au = null;
 		}
-		m_data.clear();
-		Log.d(MainActivity.LOG_TAG, "UpdateInputData " + summa);
-		m_numbOfLines = period;
-		NumberFormat double_format = NumberFormat.getNumberInstance(); 
-		double_format.setMaximumFractionDigits(2);
-		switch(type)
-		{
-		case MainActivity.TYPE_ANNUITY:
-			Calendar currDayOfPay = Calendar.getInstance();
-			currDayOfPay = date;
-			SimpleDateFormat date_format = new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
-			double currMounhtPerc = percent/(12 * 100);
-			double summOfMonthPay = summa * (currMounhtPerc + currMounhtPerc/(Math.pow(1+currMounhtPerc, period) - 1));
-			double currRestForPay = summa;
-			for(i=0; i<m_numbOfLines; i++)
-			{
-				ArrayList<String> currItem = new ArrayList<String>();
-				int currNOfPay = i + 1;
-				double currProcSumm = currRestForPay * currMounhtPerc;
-				double currCredSumm = summOfMonthPay - currProcSumm;
-				currRestForPay = currRestForPay - currCredSumm;
-				currItem.add(Integer.toString(currNOfPay));						// NUM_OF_PAY
-				currItem.add(date_format.format(currDayOfPay.getTime()));		// DATE_PAY_COLUMN
-				currItem.add(double_format.format(summOfMonthPay));				// SUMM_PAY_COLUMN
-				currItem.add(double_format.format(currCredSumm));				// SUMM_CREDIT_COLUMN
-				currItem.add(double_format.format(currProcSumm));				// SUMM_PROCENT_COLUMN
-				currItem.add("0");												// SUMM_COMMISSION_COLUMN
-				currItem.add(double_format.format(currRestForPay));				// SUMM_REST_FOR_PAY_COLUMN
-				currDayOfPay.add(Calendar.MONTH, 1);
-				m_data.add(currItem);
-			}
-			break;
-		}
-		UpdateTableViews();
+		m_au = new AsyncUpdate();
+		m_au.execute(upd_struct);
 	}
 	
+	class AsyncUpdate extends AsyncTask<UpdateStruct, TableRow, Void>
+	{
+
+		@Override
+		protected void onPreExecute() {
+			tblMain.removeAllViews();
+			super.onPreExecute();
+		}
+
+		@Override
+		protected Void doInBackground(UpdateStruct... update_structs) {
+			UpdateStruct upd_struct = update_structs[0];
+			if(upd_struct != null)
+			{
+				UpdateArrayList(upd_struct);
+				UpdateTableViews();
+			}
+			return null;
+		}
+
+		private void UpdateArrayList(UpdateStruct upd_struct)
+		{
+			int i;
+			Calendar currDayOfPay = null;
+			SimpleDateFormat date_format = new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
+			for(i=0; i<m_numbOfLines; i++)
+			{
+				m_data.get(i).clear();
+			}
+			m_data.clear();
+			Log.d(MainActivity.LOG_TAG, "UpdateInputData " + date_format.format(upd_struct.date.getTime()));
+			m_numbOfLines = upd_struct.period;
+			NumberFormat double_format = NumberFormat.getNumberInstance(); 
+			double_format.setMaximumFractionDigits(2);
+			switch(upd_struct.type)
+			{
+			case MainActivity.TYPE_ANNUITY:
+
+				Log.d(MainActivity.LOG_TAG, "UpdateInputData " + upd_struct.summa);
+				double currMounhtPerc = upd_struct.percent/(12 * 100);
+				double summOfMonthPay = upd_struct.summa * (currMounhtPerc + currMounhtPerc/(Math.pow(1+currMounhtPerc, upd_struct.period) - 1));
+				double currRestForPay = upd_struct.summa;
+				for(i=0; i<m_numbOfLines; i++)
+				{
+					currDayOfPay = (Calendar) upd_struct.date.clone();
+					currDayOfPay.add(Calendar.MONTH, i);
+					if (isCancelled()) return;
+					ArrayList<String> currItem = new ArrayList<String>();
+					int currNOfPay = i + 1;
+					double currProcSumm = currRestForPay * currMounhtPerc;
+					double currCredSumm = summOfMonthPay - currProcSumm;
+					currRestForPay = currRestForPay - currCredSumm;
+					currItem.add(Integer.toString(currNOfPay));						// NUM_OF_PAY
+					currItem.add(date_format.format(currDayOfPay.getTime()));		// DATE_PAY_COLUMN
+					currItem.add(double_format.format(summOfMonthPay));				// SUMM_PAY_COLUMN
+					currItem.add(double_format.format(currCredSumm));				// SUMM_CREDIT_COLUMN
+					currItem.add(double_format.format(currProcSumm));				// SUMM_PROCENT_COLUMN
+					currItem.add("0");												// SUMM_COMMISSION_COLUMN
+					currItem.add(double_format.format(currRestForPay));				// SUMM_REST_FOR_PAY_COLUMN
+					
+					m_data.add(currItem);
+				}
+				break;
+			}
+		}
+		
+		private void UpdateTableViews()
+		{
+			int i, j;
+			TableRow.LayoutParams wrapWrapTableRowParams = new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+			
+			BordersInfo biCurr = new BordersInfo();
+			for(i=0; i<m_numbOfLines; i++)
+			{
+				TableRow row = new TableRow(getActivity());
+		        row.setLayoutParams(wrapWrapTableRowParams);
+		        row.setGravity(Gravity.CENTER);
+	            row.setBackgroundColor(Color.BLACK);
+				biCurr.SetUpDown(i, m_numbOfLines, 1);
+	            row.setPadding(0, biCurr.top, 0, biCurr.bottom);
+
+				for(j=0; j<NUMB_OF_COLUMNS; j++)
+				{
+					if (isCancelled()) return;
+					biCurr.SetLeftRight(j, NUMB_OF_COLUMNS, 1);
+					row.addView(makeTableRowWithText(m_data.get(i).get(j), m_columnWidths[0], m_rowHeight, biCurr, Color.WHITE));
+				}
+				publishProgress(row);
+			}
+		}
+		
+		@Override
+		protected void onProgressUpdate(TableRow... table_rows) {
+			super.onProgressUpdate(table_rows);
+			if (isCancelled()) return;
+			TableRow row = table_rows[0];
+			if(row != null)
+			{
+				tblMain.addView(row);
+			}
+		}
+		
+	}
 	public int GetNumbOfData()
 	{
 		return m_numbOfLines * NUMB_OF_COLUMNS;
@@ -155,30 +227,6 @@ public class TableFragment extends Fragment implements IUpdateData {
 			row.addView(makeTableRowWithText(m_colNamesArrayList.get(i), m_columnWidths[0], m_headerHeight, biCurr, Color.YELLOW));
 		}
 		tblHeader.addView(row);
-	}
-	
-	private void UpdateTableViews()
-	{
-		int i, j;
-		TableRow.LayoutParams wrapWrapTableRowParams = new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-		tblMain.removeAllViews();
-		BordersInfo biCurr = new BordersInfo();
-		for(i=0; i<m_numbOfLines; i++)
-		{
-			TableRow row = new TableRow(this.getActivity());
-	        row.setLayoutParams(wrapWrapTableRowParams);
-	        row.setGravity(Gravity.CENTER);
-            row.setBackgroundColor(Color.BLACK);
-			biCurr.SetUpDown(i, m_numbOfLines, 1);
-            row.setPadding(0, biCurr.top, 0, biCurr.bottom);
-
-			for(j=0; j<NUMB_OF_COLUMNS; j++)
-			{
-				biCurr.SetLeftRight(j, NUMB_OF_COLUMNS, 1);
-				row.addView(makeTableRowWithText(m_data.get(i).get(j), m_columnWidths[0], m_rowHeight, biCurr, Color.WHITE));
-			}
-			tblMain.addView(row);
-		}
 	}
 	
 	public TextView makeTableRowWithText(String text, int widthInPercentOfScreenWidth, int fixedHeightInPixels, BordersInfo rcBorders, int bgColor) {
