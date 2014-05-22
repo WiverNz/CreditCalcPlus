@@ -1,16 +1,24 @@
 package ru.wivern.creditcalcplus;
 
-import java.util.Date;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
 
-import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.GridView;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TableRow.LayoutParams;
+import android.widget.TextView;
 
 public class TableFragment extends Fragment implements IUpdateData {
     /**
@@ -18,17 +26,29 @@ public class TableFragment extends Fragment implements IUpdateData {
      * fragment.
      */
     private static final String ARG_SECTION_NUMBER = "section_number";
-    GridView gvMain;
-    public static final int DATE_PAY_COLUMN				= 0;
-    public static final int SUMM_PAY_COLUMN				= 1;
-    public static final int SUMM_CREDIT_COLUMN			= 2;
-    public static final int SUMM_PROCENT_COLUMN			= 3;
-    public static final int SUMM_COMMISSION_COLUMN		= 4;
-    public static final int SUMM_ADD_COMMISSION_COLUMN	= 5;
-    public static final int SUMM_REST_FOR_PAY_COLUMN	= 6;
+    //private GridView gvMain;
+    private TableLayout tblHeader;
+    private TableLayout tblMain;
     
+    public static final int NUM_OF_PAY					= 0;
+    public static final int DATE_PAY_COLUMN				= 1;
+    public static final int SUMM_PAY_COLUMN				= 2;
+    public static final int SUMM_CREDIT_COLUMN			= 3;
+    public static final int SUMM_PROCENT_COLUMN			= 4;
+    public static final int SUMM_COMMISSION_COLUMN		= 5;
+    public static final int SUMM_REST_FOR_PAY_COLUMN	= 6;
+
     public static final int NUMB_OF_COLUMNS				= 7;
     
+    private static final int[] m_columnWidths = new int[] {8, 10, 10, 10, 10, 10, 10};
+    private static final int m_rowHeight = 50;
+    private static final int m_headerHeight = 60;
+    
+    private ArrayList<ArrayList<String>> m_data = new ArrayList<ArrayList<String>>();
+    
+    private int m_numbOfLines = 0;
+    
+    ArrayList<String> m_colNamesArrayList = new ArrayList<String>();
     /**
      * Returns a new instance of this fragment for the given section
      * number.
@@ -49,55 +69,165 @@ public class TableFragment extends Fragment implements IUpdateData {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_table, container, false);
-        gvMain	= (GridView) rootView.findViewById(R.id.gvMain);
+        tblHeader	= (TableLayout) rootView.findViewById(R.id.tbl_header);
+        tblMain		= (TableLayout) rootView.findViewById(R.id.tbl_maintable);
+        
+        Resources res = getResources();
+        Collections.addAll(m_colNamesArrayList, res.getStringArray(R.array.colNameArray));
+        
+        CreateHeaderOfTable();
+        
         return rootView;
     }
 
 	@Override
 	public void UpdateInputData(int type, int period, int summa,
-			double percent, Date date, int typePR, Date prDate, int prSumm) {
+			double percent, Calendar date, int typePR, Calendar prDate, int prSumm) {
+		int i;		
+		for(i=0; i<m_numbOfLines; i++)
+		{
+			m_data.get(i).clear();
+		}
+		m_data.clear();
 		Log.d(MainActivity.LOG_TAG, "UpdateInputData " + summa);
-		gvMain.setAdapter(new DataTableAdapter(this));
+		m_numbOfLines = period;
+		NumberFormat double_format = NumberFormat.getNumberInstance(); 
+		double_format.setMaximumFractionDigits(2);
+		switch(type)
+		{
+		case MainActivity.TYPE_ANNUITY:
+			Calendar currDayOfPay = Calendar.getInstance();
+			currDayOfPay = date;
+			SimpleDateFormat date_format = new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
+			double currMounhtPerc = percent/(12 * 100);
+			double summOfMonthPay = summa * (currMounhtPerc + currMounhtPerc/(Math.pow(1+currMounhtPerc, period) - 1));
+			double currRestForPay = summa;
+			for(i=0; i<m_numbOfLines; i++)
+			{
+				ArrayList<String> currItem = new ArrayList<String>();
+				int currNOfPay = i + 1;
+				double currProcSumm = currRestForPay * currMounhtPerc;
+				double currCredSumm = summOfMonthPay - currProcSumm;
+				currRestForPay = currRestForPay - currCredSumm;
+				currItem.add(Integer.toString(currNOfPay));						// NUM_OF_PAY
+				currItem.add(date_format.format(currDayOfPay.getTime()));		// DATE_PAY_COLUMN
+				currItem.add(double_format.format(summOfMonthPay));				// SUMM_PAY_COLUMN
+				currItem.add(double_format.format(currCredSumm));				// SUMM_CREDIT_COLUMN
+				currItem.add(double_format.format(currProcSumm));				// SUMM_PROCENT_COLUMN
+				currItem.add("0");												// SUMM_COMMISSION_COLUMN
+				currItem.add(double_format.format(currRestForPay));				// SUMM_REST_FOR_PAY_COLUMN
+				currDayOfPay.add(Calendar.MONTH, 1);
+				m_data.add(currItem);
+			}
+			break;
+		}
+		UpdateTableViews();
+	}
+	
+	public int GetNumbOfData()
+	{
+		return m_numbOfLines * NUMB_OF_COLUMNS;
 	}
 	
 	public String GetData(int line, int column)
 	{
 		return "" + line + " " + column;
 	}
-	
-	public class DataTableAdapter extends BaseAdapter {
-		private TableFragment m_tableFragment;
-		
-		public DataTableAdapter(TableFragment tf)
+
+	private void CreateHeaderOfTable()
+	{
+		int i;
+		tblHeader.removeAllViews();
+		TableRow.LayoutParams wrapWrapTableRowParams = new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		//wrapWrapTableRowParams.setMargins(10, 10, 0, 10);
+		//wrapWrapTableRowParams.
+		TableRow row = new TableRow(this.getActivity());
+        row.setLayoutParams(wrapWrapTableRowParams);
+        row.setGravity(Gravity.CENTER);
+        row.setBackgroundColor(Color.BLACK);
+        row.setPadding(0, 1, 0, 2);
+        BordersInfo biCurr = new BordersInfo();
+		for(i=0; i<NUMB_OF_COLUMNS; i++)
 		{
-			m_tableFragment = tf;
+			biCurr.top = 1;
+			biCurr.bottom = 1;
+			biCurr.SetLeftRight(i, NUMB_OF_COLUMNS, 1);
+			row.addView(makeTableRowWithText(m_colNamesArrayList.get(i), m_columnWidths[0], m_headerHeight, biCurr, Color.YELLOW));
 		}
-		@Override
-		public int getCount() {
-			// TODO Auto-generated method stub
-			return 0;
-		}
+		tblHeader.addView(row);
+	}
+	
+	private void UpdateTableViews()
+	{
+		int i, j;
+		TableRow.LayoutParams wrapWrapTableRowParams = new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		tblMain.removeAllViews();
+		BordersInfo biCurr = new BordersInfo();
+		for(i=0; i<m_numbOfLines; i++)
+		{
+			TableRow row = new TableRow(this.getActivity());
+	        row.setLayoutParams(wrapWrapTableRowParams);
+	        row.setGravity(Gravity.CENTER);
+            row.setBackgroundColor(Color.BLACK);
+			biCurr.SetUpDown(i, m_numbOfLines, 1);
+            row.setPadding(0, biCurr.top, 0, biCurr.bottom);
 
-		@Override
-		public Object getItem(int position) {
-			// TODO Auto-generated method stub
-			return null;
+			for(j=0; j<NUMB_OF_COLUMNS; j++)
+			{
+				biCurr.SetLeftRight(j, NUMB_OF_COLUMNS, 1);
+				row.addView(makeTableRowWithText(m_data.get(i).get(j), m_columnWidths[0], m_rowHeight, biCurr, Color.WHITE));
+			}
+			tblMain.addView(row);
 		}
-
-		@Override
-		public long getItemId(int position) {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			int currLine = position / TableFragment.NUMB_OF_COLUMNS;
-			int currColumn = position % TableFragment.NUMB_OF_COLUMNS;
-			//String currText = TableFragment.GetData(currLine, currColumn);
-			String currText = GetData(currLine, currColumn);
-			return null;
+	}
+	
+	public TextView makeTableRowWithText(String text, int widthInPercentOfScreenWidth, int fixedHeightInPixels, BordersInfo rcBorders, int bgColor) {
+        int screenWidth = getResources().getDisplayMetrics().widthPixels;
+        LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        params.setMargins(rcBorders.left, 0, rcBorders.right, 0);
+        TextView recyclableTextView = new TextView(this.getActivity());
+        recyclableTextView.setText(text);
+        recyclableTextView.setTextColor(Color.BLACK);
+        recyclableTextView.setTextSize(9);
+        recyclableTextView.setGravity(Gravity.CENTER);
+        recyclableTextView.setWidth(widthInPercentOfScreenWidth * screenWidth / 100);
+        recyclableTextView.setHeight(fixedHeightInPixels);
+        recyclableTextView.setBackgroundColor(bgColor);
+        recyclableTextView.setLayoutParams(params);
+        return recyclableTextView;
+    }
+	
+	class BordersInfo {
+		public int left;
+		public int right;
+		public int top;
+		public int bottom;
+		public void SetLeftRight(int currW, int maxW, int length)
+		{
+			if(currW == 0)
+			{
+				this.left	= length;
+				this.right	= length;
+			}
+			else
+			{
+				this.left	= 0;
+				this.right	= length;
+			}
 		}
 		
+		public void SetUpDown(int currH, int maxH, int length)
+		{
+			if(currH == 0)
+			{
+				this.bottom	= length;
+				this.top	= 0;
+			}
+			else
+			{
+				this.top	= 0;
+				this.bottom	= length;
+			}
+		}
 	}
 }

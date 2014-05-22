@@ -2,7 +2,6 @@ package ru.wivern.creditcalcplus;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -27,7 +26,7 @@ import android.app.DatePickerDialog.OnDateSetListener;
 
 // скрыть клавиатуру при вводе даты
 // получить результат datepicker для каждого edittext
-public class MainFragment extends Fragment implements OnClickListener, OnEditorActionListener, OnDateSetListener, OnTouchListener {
+public class MainFragment extends Fragment implements OnClickListener, OnEditorActionListener, OnDateSetListener, OnTouchListener, IUpdateData {
 	/**
      * The fragment argument representing the section number for this
      * fragment.
@@ -40,7 +39,7 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
     EditText etPeriod;
     EditText etFirstDate;
     
-    EditText etCurrSelectedDateForm;
+    EditText etCurrSelectedDateForm;		// for Date dialog
     
     RadioGroup rgTypeOfRepayment;
     EditText etPartRepDate;
@@ -53,6 +52,8 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
     IUpdateData updInterface;
     
     DatePickerFragment m_datePicker;
+    
+    SimpleDateFormat m_date_format;
     /**
      * Returns a new instance of this fragment for the given section
      * number.
@@ -123,6 +124,11 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
         
         etCurrSelectedDateForm = null;
         
+        m_date_format = new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
+        
+        MainActivity ma = (MainActivity) this.getActivity();
+        ma.UpdateFromFragment(this);
+        
         return rootView;
     }
 
@@ -144,14 +150,14 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 	
 	@Override
 	public boolean onEditorAction(TextView tv, int arg1, KeyEvent arg2) {
-		int currType			= -1;
-		int currValSumma		= -1;
-		int currValPeriod		= -1;
-		double currValPercent	= -1;
-		Date currValFirstDate	= null;
-		int currTypeOfRepayment	= -1;
-		Date currValPartRepDate	= null;
-		int currValPartRepSumm	= -1;
+		int currType				= -1;
+		int currValSumma			= -1;
+		int currValPeriod			= -1;
+		double currValPercent		= -1;
+		Calendar currValFirstDate	= Calendar.getInstance();
+		int currTypeOfRepayment		= -1;
+		Calendar currValPartRepDate	= Calendar.getInstance();
+		int currValPartRepSumm		= -1;
 		
 		String currText = tv.getText().toString();
 		switch(tv.getId())
@@ -189,9 +195,9 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 		case R.id.etFirstDate:
 			if(TextUtils.isEmpty(currText) == false)
 			{
-				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US);  
+				//SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US);  
 				try {
-					currValFirstDate = format.parse(currText); 
+					currValFirstDate.setTime(m_date_format.parse(currText)); 
 				} catch (java.text.ParseException e) {
 					e.printStackTrace();
 				}
@@ -200,9 +206,9 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 		case R.id.etPartRepDate:
 			if(TextUtils.isEmpty(currText) == false)
 			{
-				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US);  
+				//SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US);  
 				try {
-					currValPartRepDate = format.parse(currText); 
+					currValPartRepDate.setTime(m_date_format.parse(currText)); 
 				} catch (java.text.ParseException e) {
 					e.printStackTrace();
 				}
@@ -297,5 +303,35 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 	
 	public void hideSoftKeyboard() {
 
+	}
+	@Override
+	public void UpdateInputData(int type, int period, int summa,
+			double percent, Calendar date, int typePR, Calendar prDate, int prSumm) {
+	    switch(type)
+	    {
+	    case MainActivity.TYPE_ANNUITY:
+	    	rgTypeOfCredit.check(R.id.rbAnnuity);
+	    	break;
+	    case MainActivity.TYPE_DIFFERENTIATED:
+	    	rgTypeOfCredit.check(R.id.rbVaried);
+	    	break;
+	    }
+	    etSumma.setText(Integer.toString(summa));;
+	    etPercent.setText(Double.toString(percent));;
+	    etPeriod.setText(Integer.toString(period));;
+	    etFirstDate.setText(m_date_format.format(date.getTime()));
+	    
+	    switch(typePR)
+	    {
+	    case MainActivity.TYPE_PR_PERIOD:
+	    	rgTypeOfRepayment.check(R.id.rbPartRepPeriod);
+	    	break;
+	    case MainActivity.TYPE_PR_DEBT:
+	    	rgTypeOfRepayment.check(R.id.rbPartRepDebt);
+			break;
+	    }
+	    etPartRepDate.setText(m_date_format.format(prDate.getTime()));;
+	    etPartRepSumm.setText(Integer.toString(prSumm));;
+		
 	}
 }

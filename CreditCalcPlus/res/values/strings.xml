@@ -25,4 +25,21 @@
     <string name="btnSettings">Настройки</string>
     <string name="btnClose">Закрыть</string>
 
+    <string name="colNameN">№ платежа</string>
+    <string name="colNameDatePay">Дата платежа</string>
+    <string name="colNameSummPay">Сумма платежа</string>
+    <string name="colNameCredPay">Основной долг</string>
+    <string name="colNameProcPay">Начисленные проценты</string>
+    <string name="colNameComsPay">Ежемесячные комиссии</string>
+    <string name="colNameRestPay">Остаток задолженности</string>
+    
+    <string-array name="colNameArray">
+        <item>№ платежа</item>
+        <item>Дата платежа</item>
+        <item>Сумма платежа</item>
+        <item>Основной долг</item>
+        <item>Начисленные проценты</item>
+        <item>Ежемесячные комиссии</item>
+        <item>Остаток задолженности</item>
+    </string-array>
 </resources>

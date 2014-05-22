@@ -1,7 +1,7 @@
 package ru.wivern.creditcalcplus;
 
 
-import java.util.Date;
+import java.util.Calendar;
 import java.util.Locale;
 
 import android.support.v7.app.ActionBarActivity;
@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -34,9 +35,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 	private int m_period;
 	private int m_summa;
 	private double m_percent;
-	private Date m_date;
+	private Calendar m_date;
 	private int m_typePartRep;
-	private Date m_partRepDate;
+	private Calendar m_partRepDate;
 	private int m_partRepSumm;
 	private Fragment m_listFragment[];
 	
@@ -46,11 +47,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     ViewPager mViewPager;
 
+    public static Context m_context;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -86,10 +88,26 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             .setText(mSectionsPagerAdapter.getPageTitle(i))
                             .setTabListener(this));
         }
+        
+        MainActivity.m_context = this;
+        
+        SetTestData();
     }
 
+	private void SetTestData() {
+		m_type			= MainActivity.TYPE_ANNUITY;
+		m_period		= 24;
+		m_summa			= 120000;
+		m_percent		= 15.9;
+		m_date			= Calendar.getInstance();
+		m_date.set(2014, 3, 27);
+		m_typePartRep	= MainActivity.TYPE_PR_DEBT;
+		m_partRepDate	= Calendar.getInstance();
+		m_partRepSumm	= 0;
+	}
+
 	@Override
-	public void UpdateInputData(int type, int period, int summa, double percent, Date date, int typePR, Date prDate, int prSumm) {
+	public void UpdateInputData(int type, int period, int summa, double percent, Calendar date, int typePR, Calendar prDate, int prSumm) {
 		if(type >= 0)
 		{
 			m_type		= type;
@@ -148,51 +166,57 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         return super.onOptionsItemSelected(item);
     }
 
+    public void UpdateFromFragment(Object currFragment)
+    {
+    	UpdateFragmentData(currFragment);
+    }
+    
+    private void UpdateFragmentData(Object currFragment)
+    {
+    	IUpdateData updInterface = null;
+        if(currFragment != null)
+        {
+    		try {
+    			updInterface = (IUpdateData) currFragment;
+    		} catch (ClassCastException e) {
+    			throw new ClassCastException(currFragment.toString()
+    					+ " must implement IUpdateData");
+    		}
+    		
+    		if (updInterface != null)
+    		{
+    			updInterface.UpdateInputData(m_type, m_period, m_summa, m_percent, m_date, m_typePartRep, m_partRepDate, m_partRepSumm);
+    		}
+        }
+    }
     @Override
     public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
         // When the given tab is selected, switch to the corresponding page in
         // the ViewPager.
     	Log.d(LOG_TAG, "onTabSelected " + tab.getPosition());
+    	Object currFragment = null;
+    	MainFragment mf = null;
+    	TableFragment tf = null;
+    	GraphicFragment gf = null;
+    	HistoryFragment hf = null;
         switch (tab.getPosition())
         {
         case MAIN_FRAGMENT:
-        	MainFragment mf = (MainFragment) m_listFragment[MAIN_FRAGMENT];
-    		if (mf != null)
-    		{
-    			
-    		}
+        	mf = (MainFragment) m_listFragment[MAIN_FRAGMENT];
+        	currFragment = mf;
     		break;
         case TABLE_FRAGMENT:
-        	IUpdateData updInterface = null;
-        	TableFragment tf = (TableFragment) m_listFragment[TABLE_FRAGMENT];
-    		try {
-    			updInterface = (IUpdateData) tf;
-    		} catch (ClassCastException e) {
-    			throw new ClassCastException(tf.toString()
-    					+ " must implement IUpdateData");
-    		}
-    		
-    		if (tf != null && updInterface != null)
-    		{
-    			updInterface.UpdateInputData(m_type, m_period, m_summa, m_percent, m_date, m_typePartRep, m_partRepDate, m_partRepSumm);
-    		}
+        	tf = (TableFragment) m_listFragment[TABLE_FRAGMENT];
+        	currFragment = tf;
+        	UpdateFragmentData(currFragment);
     		break;
         case GRAPHIC_FRAGMENT:
-        	GraphicFragment gf = (GraphicFragment) m_listFragment[GRAPHIC_FRAGMENT];
-    		if (gf != null)
-    		{
-    			
-    		}
+        	gf = (GraphicFragment) m_listFragment[GRAPHIC_FRAGMENT];
     		break;
         case HISTORY_FRAGMENT:
-        	HistoryFragment hf = (HistoryFragment) m_listFragment[HISTORY_FRAGMENT];
-    		if (hf != null)
-    		{
-    			
-    		}
+        	hf = (HistoryFragment) m_listFragment[HISTORY_FRAGMENT];
     		break;
         }
-		
 
         mViewPager.setCurrentItem(tab.getPosition());
     }
