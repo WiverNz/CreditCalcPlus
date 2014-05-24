@@ -4,15 +4,15 @@ package ru.wivern.creditcalcplus;
 import java.util.Calendar;
 import java.util.Locale;
 
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -198,19 +198,19 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         // the ViewPager.
     	Log.d(LOG_TAG, "onTabSelected " + tab.getPosition());
     	Object currFragment = null;
-    	MainFragment mf = null;
+    	MainFragment mf = (MainFragment) m_listFragment[MAIN_FRAGMENT];
     	TableFragment tf = null;
     	GraphicFragment gf = null;
     	HistoryFragment hf = null;
         switch (tab.getPosition())
         {
         case MAIN_FRAGMENT:
-        	mf = (MainFragment) m_listFragment[MAIN_FRAGMENT];
         	currFragment = mf;
     		break;
         case TABLE_FRAGMENT:
         	tf = (TableFragment) m_listFragment[TABLE_FRAGMENT];
         	currFragment = tf;
+        	mf.UpdateMainData();
         	UpdateFragmentData(currFragment);
     		break;
         case GRAPHIC_FRAGMENT:

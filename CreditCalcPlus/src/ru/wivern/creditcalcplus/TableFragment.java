@@ -165,7 +165,7 @@ public class TableFragment extends Fragment implements IUpdateData {
 			TableRow.LayoutParams wrapWrapTableRowParams = new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 			
 			BordersInfo biCurr = new BordersInfo();
-			for(i=0; i<m_numbOfLines; i++)
+			for(i=0; i<m_data.size(); i++)
 			{
 				TableRow row = new TableRow(getActivity());
 		        row.setLayoutParams(wrapWrapTableRowParams);
@@ -173,12 +173,13 @@ public class TableFragment extends Fragment implements IUpdateData {
 	            row.setBackgroundColor(Color.BLACK);
 				biCurr.SetUpDown(i, m_numbOfLines, 1);
 	            row.setPadding(0, biCurr.top, 0, biCurr.bottom);
-
-				for(j=0; j<NUMB_OF_COLUMNS; j++)
+	            ArrayList<String> currItem = m_data.get(i);
+	            
+				for(j=0; j<currItem.size(); j++)
 				{
 					if (isCancelled()) return;
 					biCurr.SetLeftRight(j, NUMB_OF_COLUMNS, 1);
-					row.addView(makeTableRowWithText(m_data.get(i).get(j), m_columnWidths[0], m_rowHeight, biCurr, Color.WHITE));
+					row.addView(makeTableRowWithText(currItem.get(j), m_columnWidths[0], m_rowHeight, biCurr, Color.WHITE));
 				}
 				publishProgress(row);
 			}

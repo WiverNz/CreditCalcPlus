@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import android.app.Activity;
+import android.app.DatePickerDialog.OnDateSetListener;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -22,11 +23,33 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
-import android.app.DatePickerDialog.OnDateSetListener;
 
 // скрыть клавиатуру при вводе даты
 // получить результат datepicker для каждого edittext
 public class MainFragment extends Fragment implements OnClickListener, OnEditorActionListener, OnDateSetListener, OnTouchListener, IUpdateData {
+	@Override
+	public void onStop() {
+		// TODO Auto-generated method stub
+		super.onStop();
+		Log.d(MainActivity.LOG_TAG, "onStop");
+	}
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		Log.d(MainActivity.LOG_TAG, "onDetach");
+
+	}
+	@Override
+	public void onStart() {
+		super.onStart();
+		Log.d(MainActivity.LOG_TAG, "onStart");
+
+	}
+	@Override
+	public void onPause() {
+		super.onPause();
+		Log.d(MainActivity.LOG_TAG, "onPause");
+	}
 	/**
      * The fragment argument representing the section number for this
      * fragment.
@@ -147,7 +170,90 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 			break;
 		}
 	}
-	
+
+	public void UpdateMainData()
+	{
+		UpdateStruct upd_struct = new UpdateStruct();
+		String currText;
+
+		currText = etSumma.getText().toString();
+		if (TextUtils.isEmpty(currText) == false) {
+			upd_struct.summa = Integer.parseInt(currText);
+		} else {
+			upd_struct.summa = 0;
+		}
+
+		currText = etPercent.getText().toString();
+		if (TextUtils.isEmpty(currText) == false) {
+			upd_struct.percent = Double.parseDouble(currText);
+		} else {
+			upd_struct.percent = 0;
+		}
+
+		currText = etPeriod.getText().toString();
+		if (TextUtils.isEmpty(currText) == false) {
+			upd_struct.period = Integer.parseInt(currText);
+		} else {
+			upd_struct.period = 0;
+		}
+
+		currText = etFirstDate.getText().toString();
+		if (TextUtils.isEmpty(currText) == false) {
+			// SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd",
+			// java.util.Locale.US);
+			try {
+				upd_struct.date.setTime(m_date_format.parse(currText));
+			} catch (java.text.ParseException e) {
+				e.printStackTrace();
+			}
+		}
+
+		currText = etPartRepDate.getText().toString();
+		if (TextUtils.isEmpty(currText) == false) {
+			// SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd",
+			// java.util.Locale.US);
+			try {
+				upd_struct.partRepDate.setTime(m_date_format.parse(currText));
+			} catch (java.text.ParseException e) {
+				e.printStackTrace();
+			}
+		}
+
+		currText = etPartRepSumm.getText().toString();
+		if (TextUtils.isEmpty(currText) == false) {
+			upd_struct.partRepSumm = Integer.parseInt(currText);
+		} else {
+			upd_struct.partRepSumm = 0;
+		}
+
+		switch(rgTypeOfCredit.getCheckedRadioButtonId())
+		{
+		case R.id.rbAnnuity:
+			upd_struct.type = MainActivity.TYPE_ANNUITY;
+			break;
+		case R.id.rbVaried:
+			upd_struct.type = MainActivity.TYPE_DIFFERENTIATED;
+			break;
+		}
+		
+		switch(rgTypeOfRepayment.getCheckedRadioButtonId())
+		{
+		case R.id.rbPartRepPeriod:
+			upd_struct.typePartRep = MainActivity.TYPE_PR_PERIOD;
+			break;
+		case R.id.rbPartRepDebt:
+			upd_struct.typePartRep = MainActivity.TYPE_PR_DEBT;
+			break;
+		}
+		
+		if(updInterface != null)
+		{
+			updInterface.UpdateInputData(upd_struct);
+		}
+
+		Log.d(MainActivity.LOG_TAG, "UpdateMainData = " + upd_struct.period);
+	}
+
 	@Override
 	public boolean onEditorAction(TextView tv, int arg1, KeyEvent arg2) {
 		UpdateStruct upd_struct = new UpdateStruct();

@@ -17,22 +17,35 @@
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
 
-    <style name="EditText">
-		<item name="android:layout_width">match_parent</item>
+    <style name="MainFragmentColumn_EditText">
+		<!-- <item name="android:layout_width">match_parent</item> -->
+		<item name="android:layout_weight">1</item>
 		<item name="android:layout_height">34dp</item>
-		<item name="android:layout_gravity">right</item>
 		<item name="android:textSize">12sp</item>
+		<item name="android:hint"></item>
+		<item name="android:layout_column">1</item>
 	</style>
         
-    <style name="EditText_numberSigned" parent="EditText">
+    <style name="EditText_numberSigned" parent="MainFragmentColumn_EditText">
         <item name="android:inputType">numberSigned</item>
     </style>
-    <style name="EditText_numberDecimal" parent="EditText">
+    <style name="EditText_numberDecimal" parent="MainFragmentColumn_EditText">
         <item name="android:inputType">numberDecimal</item>
     </style>
-    <style name="EditText_date" parent="EditText">
+    <style name="EditText_date" parent="MainFragmentColumn_EditText">
         <item name="android:inputType">date</item>
     </style>
     
+    <style name="MainFragmentColumnNames_TV">
+		<item name="android:layout_width">150dp</item>
+		<item name="android:layout_column">0</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+    
+    <style name="MainFragmentRadioButtons">
+		<item name="android:layout_width">wrap_content</item>
+		<item name="android:layout_height">30dp</item>
+		<item name="android:textSize">14sp</item>
+    </style>
     
 </resources>
