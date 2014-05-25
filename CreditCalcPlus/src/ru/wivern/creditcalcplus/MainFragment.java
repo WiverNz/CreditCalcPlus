@@ -166,7 +166,7 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 			Toast.makeText(getActivity(), "Пока не работает", Toast.LENGTH_SHORT).show();
 			break;
 		case R.id.btnClose:
-			Toast.makeText(getActivity(), "Пока не работает", Toast.LENGTH_SHORT).show();
+			getActivity().finish();
 			break;
 		}
 	}
