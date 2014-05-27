@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -79,6 +80,13 @@ public class TableFragment extends Fragment implements IUpdateData {
         
         CreateHeaderOfTable();
         
+        MainActivity ma = (MainActivity) this.getActivity();
+        ma.SetFragment(MainActivity.TABLE_FRAGMENT, this);
+		if(m_au != null)
+		{
+			m_au.cancel(false);
+			m_au = null;
+		}
         return rootView;
     }
 
@@ -90,15 +98,27 @@ public class TableFragment extends Fragment implements IUpdateData {
 			m_au = null;
 		}
 		m_au = new AsyncUpdate();
+		m_au.SetFragment(this);
 		m_au.execute(upd_struct);
 	}
 	
-	class AsyncUpdate extends AsyncTask<UpdateStruct, TableRow, Void>
+	static class AsyncUpdate extends AsyncTask<UpdateStruct, TableRow, Void>
 	{
+		private TableFragment m_tf = null;
+		
+		public void SetFragment(TableFragment tf)
+		{
+			m_tf = tf;
+		}
+		@Override
+		protected void onPostExecute(Void result) {
+			// TODO Auto-generated method stub
+			super.onPostExecute(result);
+		}
 
 		@Override
 		protected void onPreExecute() {
-			tblMain.removeAllViews();
+			m_tf.tblMain.removeAllViews();
 			super.onPreExecute();
 		}
 
@@ -118,13 +138,12 @@ public class TableFragment extends Fragment implements IUpdateData {
 			int i;
 			Calendar currDayOfPay = null;
 			SimpleDateFormat date_format = new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
-			for(i=0; i<m_numbOfLines; i++)
+			for(i=0; i<m_tf.m_data.size(); i++)
 			{
-				m_data.get(i).clear();
+				m_tf.m_data.get(i).clear();
 			}
-			m_data.clear();
-			Log.d(MainActivity.LOG_TAG, "UpdateInputData " + date_format.format(upd_struct.date.getTime()));
-			m_numbOfLines = upd_struct.period;
+			m_tf.m_data.clear();
+			m_tf.m_numbOfLines = upd_struct.period;
 			NumberFormat double_format = NumberFormat.getNumberInstance(); 
 			double_format.setMaximumFractionDigits(2);
 			switch(upd_struct.type)
@@ -135,7 +154,7 @@ public class TableFragment extends Fragment implements IUpdateData {
 				double currMounhtPerc = upd_struct.percent/(12 * 100);
 				double summOfMonthPay = upd_struct.summa * (currMounhtPerc + currMounhtPerc/(Math.pow(1+currMounhtPerc, upd_struct.period) - 1));
 				double currRestForPay = upd_struct.summa;
-				for(i=0; i<m_numbOfLines; i++)
+				for(i=0; i<m_tf.m_numbOfLines; i++)
 				{
 					currDayOfPay = (Calendar) upd_struct.date.clone();
 					currDayOfPay.add(Calendar.MONTH, i);
@@ -153,7 +172,7 @@ public class TableFragment extends Fragment implements IUpdateData {
 					currItem.add("0");												// SUMM_COMMISSION_COLUMN
 					currItem.add(double_format.format(currRestForPay));				// SUMM_REST_FOR_PAY_COLUMN
 					
-					m_data.add(currItem);
+					m_tf.m_data.add(currItem);
 				}
 				break;
 			}
@@ -165,21 +184,23 @@ public class TableFragment extends Fragment implements IUpdateData {
 			TableRow.LayoutParams wrapWrapTableRowParams = new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 			
 			BordersInfo biCurr = new BordersInfo();
-			for(i=0; i<m_data.size(); i++)
+			Context context = m_tf.getActivity();
+			int screenWidth = m_tf.getResources().getDisplayMetrics().widthPixels;
+			for(i=0; i<m_tf.m_data.size(); i++)
 			{
-				TableRow row = new TableRow(getActivity());
+				TableRow row = new TableRow(context);
 		        row.setLayoutParams(wrapWrapTableRowParams);
 		        row.setGravity(Gravity.CENTER);
 	            row.setBackgroundColor(Color.BLACK);
-				biCurr.SetUpDown(i, m_numbOfLines, 1);
+				biCurr.SetUpDown(i, m_tf.m_numbOfLines, 1);
 	            row.setPadding(0, biCurr.top, 0, biCurr.bottom);
-	            ArrayList<String> currItem = m_data.get(i);
+	            ArrayList<String> currItem = m_tf.m_data.get(i);
 	            
 				for(j=0; j<currItem.size(); j++)
 				{
 					if (isCancelled()) return;
 					biCurr.SetLeftRight(j, NUMB_OF_COLUMNS, 1);
-					row.addView(makeTableRowWithText(currItem.get(j), m_columnWidths[0], m_rowHeight, biCurr, Color.WHITE));
+					row.addView(TableFragment.makeTableRowWithText(context, screenWidth, currItem.get(j), m_columnWidths[0], m_rowHeight, biCurr, Color.WHITE));
 				}
 				publishProgress(row);
 			}
@@ -190,21 +211,12 @@ public class TableFragment extends Fragment implements IUpdateData {
 			super.onProgressUpdate(table_rows);
 			if (isCancelled()) return;
 			TableRow row = table_rows[0];
-			if(row != null)
+			if(row != null && m_tf != null)
 			{
-				tblMain.addView(row);
+				m_tf.tblMain.addView(row);
 			}
 		}
 		
-	}
-	public int GetNumbOfData()
-	{
-		return m_numbOfLines * NUMB_OF_COLUMNS;
-	}
-	
-	public String GetData(int line, int column)
-	{
-		return "" + line + " " + column;
 	}
 
 	private void CreateHeaderOfTable()
@@ -220,33 +232,35 @@ public class TableFragment extends Fragment implements IUpdateData {
         row.setBackgroundColor(Color.BLACK);
         row.setPadding(0, 1, 0, 2);
         BordersInfo biCurr = new BordersInfo();
+		Context context = this.getActivity();
+		int screenWidth = getResources().getDisplayMetrics().widthPixels;
 		for(i=0; i<NUMB_OF_COLUMNS; i++)
 		{
 			biCurr.top = 1;
 			biCurr.bottom = 1;
 			biCurr.SetLeftRight(i, NUMB_OF_COLUMNS, 1);
-			row.addView(makeTableRowWithText(m_colNamesArrayList.get(i), m_columnWidths[0], m_headerHeight, biCurr, Color.YELLOW));
+			row.addView(makeTableRowWithText(context, screenWidth, m_colNamesArrayList.get(i), m_columnWidths[0], m_headerHeight, biCurr, Color.YELLOW));
 		}
 		tblHeader.addView(row);
 	}
 	
-	public TextView makeTableRowWithText(String text, int widthInPercentOfScreenWidth, int fixedHeightInPixels, BordersInfo rcBorders, int bgColor) {
-        int screenWidth = getResources().getDisplayMetrics().widthPixels;
+	public static TextView makeTableRowWithText(Context context, int scrWidth, String text, int widthInPercentOfScreenWidth, int fixedHeightInPixels, BordersInfo rcBorders, int bgColor) {
+        
         LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         params.setMargins(rcBorders.left, 0, rcBorders.right, 0);
-        TextView recyclableTextView = new TextView(this.getActivity());
+        TextView recyclableTextView = new TextView(context);
         recyclableTextView.setText(text);
         recyclableTextView.setTextColor(Color.BLACK);
         recyclableTextView.setTextSize(9);
         recyclableTextView.setGravity(Gravity.CENTER);
-        recyclableTextView.setWidth(widthInPercentOfScreenWidth * screenWidth / 100);
+        recyclableTextView.setWidth(widthInPercentOfScreenWidth * scrWidth / 100);
         recyclableTextView.setHeight(fixedHeightInPixels);
         recyclableTextView.setBackgroundColor(bgColor);
         recyclableTextView.setLayoutParams(params);
         return recyclableTextView;
     }
 	
-	class BordersInfo {
+	static class BordersInfo {
 		public int left;
 		public int right;
 		public int top;

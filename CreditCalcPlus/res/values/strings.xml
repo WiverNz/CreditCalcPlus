@@ -15,7 +15,7 @@
     <string name="tvPercent">Ставка %</string>
     <string name="tvPeriod">Срок в месяцах</string>
     <string name="tvFirstDate">Первый платёж</string>
-    <string name="tvAnticipatedRepayment">Досрочное погашение</string>
+    <string name="tvAnticipatedRepayment">Досрочные погашения:</string>
     <string name="tvTypeOfRepayment">Вид погашения</string>
     <string name="rbPartRepPeriod">Уменьшение срока кредита</string>
     <string name="rbPartRepDebt">Уменьшение основного долга</string>
@@ -42,4 +42,7 @@
         <item>Ежемесячные комиссии</item>
         <item>Остаток задолженности</item>
     </string-array>
+    
+    <string name="btnAddPartRep">+</string>
+    <string name="btnClearPartRep">x</string>
 </resources>

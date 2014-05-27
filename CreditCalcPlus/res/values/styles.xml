@@ -33,7 +33,7 @@
         <item name="android:inputType">numberDecimal</item>
     </style>
     <style name="EditText_date" parent="MainFragmentColumn_EditText">
-        <item name="android:inputType">date</item>
+        <item name="android:inputType">none</item>
     </style>
     
     <style name="MainFragmentColumnNames_TV">

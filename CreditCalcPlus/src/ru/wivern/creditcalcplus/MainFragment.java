@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -20,36 +21,13 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioGroup;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
-// скрыть клавиатуру при вводе даты
-// получить результат datepicker для каждого edittext
+// получить результат datepicker для каждого edittext не через etCurrSelectedDateForm
 public class MainFragment extends Fragment implements OnClickListener, OnEditorActionListener, OnDateSetListener, OnTouchListener, IUpdateData {
-	@Override
-	public void onStop() {
-		// TODO Auto-generated method stub
-		super.onStop();
-		Log.d(MainActivity.LOG_TAG, "onStop");
-	}
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		Log.d(MainActivity.LOG_TAG, "onDetach");
-
-	}
-	@Override
-	public void onStart() {
-		super.onStart();
-		Log.d(MainActivity.LOG_TAG, "onStart");
-
-	}
-	@Override
-	public void onPause() {
-		super.onPause();
-		Log.d(MainActivity.LOG_TAG, "onPause");
-	}
 	/**
      * The fragment argument representing the section number for this
      * fragment.
@@ -64,10 +42,11 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
     
     EditText etCurrSelectedDateForm;		// for Date dialog
     
-    RadioGroup rgTypeOfRepayment;
-    EditText etPartRepDate;
-    EditText etPartRepSumm;
+    Button btnClearPartRep;
+    Button btnAddPartRep;
+    ViewGroup tblPartRep;
     
+    TableLayout tblButtons;
     Button btnSaveHistory;
     Button btnClose;
     Button btnSettings;
@@ -77,6 +56,10 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
     DatePickerFragment m_datePicker;
     
     SimpleDateFormat m_date_format;
+    
+    ViewGroup m_container = null;
+    
+    int m_countOfPartRep = 0;
     /**
      * Returns a new instance of this fragment for the given section
      * number.
@@ -99,6 +82,7 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
         Bundle args = new Bundle();
         args.putInt(ARG_SECTION_NUMBER, sectionNumber);
         fragment.setArguments(args);
+
         return fragment;
     }
 
@@ -108,12 +92,16 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
+    	//InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        
+        m_container = container;
         
         rgTypeOfCredit = (RadioGroup) rootView.findViewById(R.id.rgTypeOfCredit);
         
         etSumma = (EditText) rootView.findViewById(R.id.etSumma);
         etSumma.setOnEditorActionListener(this);
+        //imm.hideSoftInputFromWindow(etSumma.getWindowToken(), InputMethodManager.RESULT_UNCHANGED_SHOWN);
         
         etPercent = (EditText) rootView.findViewById(R.id.etPercent);
         etPercent.setOnEditorActionListener(this);
@@ -124,15 +112,17 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
         etFirstDate = (EditText) rootView.findViewById(R.id.etFirstDate);
         etFirstDate.setOnTouchListener(this);
         etFirstDate.setOnEditorActionListener(this);
+        etFirstDate.setInputType(InputType.TYPE_NULL);
         
-        rgTypeOfRepayment = (RadioGroup) rootView.findViewById(R.id.rgTypeOfRepayment);
+        btnClearPartRep = (Button) rootView.findViewById(R.id.btnClearPartRep);
+        btnClearPartRep.setOnClickListener(this);
         
-        etPartRepDate = (EditText) rootView.findViewById(R.id.etPartRepDate);
-        etPartRepDate.setOnTouchListener(this);
-        etPartRepDate.setOnEditorActionListener(this); 
+        btnAddPartRep = (Button) rootView.findViewById(R.id.btnAddPartRep);
+        btnAddPartRep.setOnClickListener(this);
         
-        etPartRepSumm = (EditText) rootView.findViewById(R.id.etPartRepSumm);
-        etPartRepDate.setOnEditorActionListener(this);
+        tblPartRep = (ViewGroup) rootView.findViewById(R.id.tblPartRep);
+        
+        tblButtons = (TableLayout) rootView.findViewById(R.id.tblButtons);
         
         btnSaveHistory = (Button) rootView.findViewById(R.id.btnSaveHistory);
         btnSaveHistory.setOnClickListener(this);
@@ -151,6 +141,7 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
         
         MainActivity ma = (MainActivity) this.getActivity();
         ma.UpdateFromFragment(this);
+        ma.SetFragment(MainActivity.MAIN_FRAGMENT, this);
         
         return rootView;
     }
@@ -159,6 +150,12 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 	public void onClick(View view) {
 		switch(view.getId())
 		{
+		case R.id.btnAddPartRep:
+			AddPartView();
+			break;
+		case R.id.btnClearPartRep:
+
+			break;
 		case R.id.btnSaveHistory:
 			Toast.makeText(getActivity(), "Пока не работает", Toast.LENGTH_SHORT).show();
 			break;
@@ -171,9 +168,66 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 		}
 	}
 
+	public View AddPartView()
+	{
+		LayoutInflater layoutInflater = (LayoutInflater) this.getActivity().getSystemService(MainActivity.LAYOUT_INFLATER_SERVICE);
+		View childView = layoutInflater.inflate(R.layout.part_repay_table, null);
+		childView.setId(m_countOfPartRep);
+	    EditText etPartRepDate;
+	    EditText etPartRepSumm;
+        etPartRepDate = (EditText) childView.findViewById(R.id.etPartRepDate);
+        etPartRepDate.setOnTouchListener(this);
+        etPartRepDate.setOnEditorActionListener(this); 
+        etPartRepDate.setInputType(InputType.TYPE_NULL);
+        
+        etPartRepSumm = (EditText) childView.findViewById(R.id.etPartRepSumm);
+        etPartRepSumm.setOnEditorActionListener(this);
+		tblPartRep.addView(childView);
+		m_countOfPartRep = m_countOfPartRep + 1;
+		tblButtons.requestLayout();	// Update text on buttons
+		
+		return childView;
+	}
+	
+	public void SetViewByPartData(View currView, UpdateStruct.PartRepStruct prs)
+	{
+		if(currView == null)
+		{
+			return;
+		}
+	    RadioGroup rgTypeOfRepayment;
+	    EditText etPartRepDate;
+	    EditText etPartRepSumm;
+
+        rgTypeOfRepayment = (RadioGroup) currView.findViewById(R.id.rgTypeOfRepayment);
+        etPartRepDate = (EditText) currView.findViewById(R.id.etPartRepDate);
+        etPartRepSumm = (EditText) currView.findViewById(R.id.etPartRepSumm);
+        
+	    
+	    switch(prs.typePartRep)
+	    {
+	    case MainActivity.TYPE_PR_PERIOD:
+	    	rgTypeOfRepayment.check(R.id.rbPartRepPeriod);
+	    	break;
+	    case MainActivity.TYPE_PR_DEBT:
+	    	rgTypeOfRepayment.check(R.id.rbPartRepDebt);
+			break;
+	    }
+	    etPartRepDate.setText(m_date_format.format(prs.partRepDate.getTime()));
+	    etPartRepSumm.setText(Integer.toString(prs.partRepSumm));
+	}
+	
+	public void ClearPartViews()
+	{
+		m_countOfPartRep = 0;
+		tblPartRep.removeAllViews();
+		tblButtons.requestLayout();	// Update text on buttons
+	}
+	
 	public void UpdateMainData()
 	{
 		UpdateStruct upd_struct = new UpdateStruct();
+		int i;
 		String currText;
 
 		currText = etSumma.getText().toString();
@@ -199,8 +253,6 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 
 		currText = etFirstDate.getText().toString();
 		if (TextUtils.isEmpty(currText) == false) {
-			// SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd",
-			// java.util.Locale.US);
 			try {
 				upd_struct.date.setTime(m_date_format.parse(currText));
 			} catch (java.text.ParseException e) {
@@ -208,22 +260,46 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 			}
 		}
 
-		currText = etPartRepDate.getText().toString();
-		if (TextUtils.isEmpty(currText) == false) {
-			// SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd",
-			// java.util.Locale.US);
-			try {
-				upd_struct.partRepDate.setTime(m_date_format.parse(currText));
-			} catch (java.text.ParseException e) {
-				e.printStackTrace();
+		for(i=0; i<m_countOfPartRep; i++)
+		{
+		    RadioGroup rgTypeOfRepayment;
+		    EditText etPartRepDate;
+		    EditText etPartRepSumm;
+		    UpdateStruct.PartRepStruct prs = new UpdateStruct.PartRepStruct();
+			View currView = tblPartRep.findViewById(i);
+			if(currView == null)
+			{
+				continue;
 			}
-		}
-
-		currText = etPartRepSumm.getText().toString();
-		if (TextUtils.isEmpty(currText) == false) {
-			upd_struct.partRepSumm = Integer.parseInt(currText);
-		} else {
-			upd_struct.partRepSumm = 0;
+	        rgTypeOfRepayment = (RadioGroup) currView.findViewById(R.id.rgTypeOfRepayment);
+	        etPartRepDate = (EditText) currView.findViewById(R.id.etPartRepDate);
+	        etPartRepSumm = (EditText) currView.findViewById(R.id.etPartRepSumm);
+	        
+			currText = etPartRepDate.getText().toString();
+			if (TextUtils.isEmpty(currText) == false) {
+				try {
+					prs.partRepDate.setTime(m_date_format.parse(currText));
+				} catch (java.text.ParseException e) {
+					e.printStackTrace();
+				}
+			}
+			currText = etPartRepSumm.getText().toString();
+			if (TextUtils.isEmpty(currText) == false) {
+				prs.partRepSumm = Integer.parseInt(currText);
+			} else {
+				prs.partRepSumm = 0;
+			}
+			switch(rgTypeOfRepayment.getCheckedRadioButtonId())
+			{
+			case R.id.rbPartRepPeriod:
+				prs.typePartRep = MainActivity.TYPE_PR_PERIOD;
+				break;
+			case R.id.rbPartRepDebt:
+				prs.typePartRep = MainActivity.TYPE_PR_DEBT;
+				break;
+			}
+			
+			upd_struct.part.add(prs);
 		}
 
 		switch(rgTypeOfCredit.getCheckedRadioButtonId())
@@ -233,16 +309,6 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 			break;
 		case R.id.rbVaried:
 			upd_struct.type = MainActivity.TYPE_DIFFERENTIATED;
-			break;
-		}
-		
-		switch(rgTypeOfRepayment.getCheckedRadioButtonId())
-		{
-		case R.id.rbPartRepPeriod:
-			upd_struct.typePartRep = MainActivity.TYPE_PR_PERIOD;
-			break;
-		case R.id.rbPartRepDebt:
-			upd_struct.typePartRep = MainActivity.TYPE_PR_DEBT;
 			break;
 		}
 		
@@ -256,97 +322,21 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 
 	@Override
 	public boolean onEditorAction(TextView tv, int arg1, KeyEvent arg2) {
-		UpdateStruct upd_struct = new UpdateStruct();
-		
+		Calendar date = Calendar.getInstance();
 		String currText = tv.getText().toString();
 		switch(tv.getId())
 		{
-		case R.id.etSumma:
-			if(TextUtils.isEmpty(currText) == false)
-			{
-				upd_struct.summa = Integer.parseInt(currText);
-			}
-			else
-			{
-				upd_struct.summa = 0;
-			}
-			break;
-		case R.id.etPercent:
-			if(TextUtils.isEmpty(currText) == false)
-			{
-				upd_struct.percent = Double.parseDouble(currText);
-			}
-			else
-			{
-				upd_struct.percent = 0;
-			}
-			break;
-		case R.id.etPeriod:
-			if(TextUtils.isEmpty(currText) == false)
-			{
-				upd_struct.period = Integer.parseInt(currText);
-			}
-			else
-			{
-				upd_struct.period = 0;
-			}
-			break;
 		case R.id.etFirstDate:
 			if(TextUtils.isEmpty(currText) == false)
 			{
-				//SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US);  
 				try {
-					upd_struct.date.setTime(m_date_format.parse(currText)); 
+					date.setTime(m_date_format.parse(currText)); 
 				} catch (java.text.ParseException e) {
 					e.printStackTrace();
 				}
 			}
 			break;
-		case R.id.etPartRepDate:
-			if(TextUtils.isEmpty(currText) == false)
-			{
-				//SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US);  
-				try {
-					upd_struct.partRepDate.setTime(m_date_format.parse(currText)); 
-				} catch (java.text.ParseException e) {
-					e.printStackTrace();
-				}
-			}
-			break;
-		case R.id.etPartRepSumm:
-			if(TextUtils.isEmpty(currText) == false)
-			{
-				upd_struct.partRepSumm = Integer.parseInt(currText);
-			}
-			else
-			{
-				upd_struct.partRepSumm = 0;
-			}
-			break;
 		}
-		switch(rgTypeOfCredit.getCheckedRadioButtonId())
-		{
-		case R.id.rbAnnuity:
-			upd_struct.type = MainActivity.TYPE_ANNUITY;
-			break;
-		case R.id.rbVaried:
-			upd_struct.type = MainActivity.TYPE_DIFFERENTIATED;
-			break;
-		}
-		
-		switch(rgTypeOfRepayment.getCheckedRadioButtonId())
-		{
-		case R.id.rbPartRepPeriod:
-			upd_struct.typePartRep = MainActivity.TYPE_PR_PERIOD;
-			break;
-		case R.id.rbPartRepDebt:
-			upd_struct.typePartRep = MainActivity.TYPE_PR_DEBT;
-			break;
-		}
-		
-		updInterface.UpdateInputData(upd_struct);
-
-		Log.d(MainActivity.LOG_TAG, "onEditorAction currValPeriod = " + upd_struct.period);
 		
 		return false;
 	}
@@ -379,7 +369,7 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 				if(TextUtils.isEmpty(currTitle) == true)
 				{
 					currTitle = this.getString(R.string.tvPartRepDate);
-					etCurrSelectedDateForm = etPartRepDate;
+					etCurrSelectedDateForm = (EditText) v;
 				}
 				
 				Calendar calender = Calendar.getInstance();
@@ -400,11 +390,9 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 		return false;
 	}
 	
-	public void hideSoftKeyboard() {
-
-	}
 	@Override
 	public void UpdateInputData(UpdateStruct upd_struct) {
+		int i;
 	    switch(upd_struct.type)
 	    {
 	    case MainActivity.TYPE_ANNUITY:
@@ -414,22 +402,15 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 	    	rgTypeOfCredit.check(R.id.rbVaried);
 	    	break;
 	    }
-	    etSumma.setText(Integer.toString(upd_struct.summa));;
-	    etPercent.setText(Double.toString(upd_struct.percent));;
-	    etPeriod.setText(Integer.toString(upd_struct.period));;
+	    etSumma.setText(Integer.toString(upd_struct.summa));
+	    etPercent.setText(Double.toString(upd_struct.percent));
+	    etPeriod.setText(Integer.toString(upd_struct.period));
 	    etFirstDate.setText(m_date_format.format(upd_struct.date.getTime()));
-	    
-	    switch(upd_struct.typePartRep)
+	    ClearPartViews();
+	    for(i=0; i<upd_struct.part.size(); i++)
 	    {
-	    case MainActivity.TYPE_PR_PERIOD:
-	    	rgTypeOfRepayment.check(R.id.rbPartRepPeriod);
-	    	break;
-	    case MainActivity.TYPE_PR_DEBT:
-	    	rgTypeOfRepayment.check(R.id.rbPartRepDebt);
-			break;
+	    	View currView = AddPartView();
+	    	SetViewByPartData(currView, upd_struct.part.get(i));
 	    }
-	    etPartRepDate.setText(m_date_format.format(upd_struct.partRepDate.getTime()));;
-	    etPartRepSumm.setText(Integer.toString(upd_struct.partRepSumm));;
-		
 	}
 }

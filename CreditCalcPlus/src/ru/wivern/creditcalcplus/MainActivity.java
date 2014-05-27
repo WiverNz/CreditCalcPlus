@@ -1,11 +1,13 @@
 package ru.wivern.creditcalcplus;
 
-
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
+import ru.wivern.creditcalcplus.UpdateStruct.PartRepStruct;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -16,12 +18,24 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.InputMethodManager;
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, IUpdateData {
-	private static final int MAIN_FRAGMENT		= 0;
-	private static final int TABLE_FRAGMENT		= 1;
-	private static final int GRAPHIC_FRAGMENT	= 2;
-	private static final int HISTORY_FRAGMENT	= 3;
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putParcelable(UpdateStruct.class.getCanonicalName(), (Parcelable) m_data);
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+		m_data = (UpdateStruct) savedInstanceState.getParcelable(UpdateStruct.class.getCanonicalName());
+	}
+	public static final int MAIN_FRAGMENT		= 0;
+	public static final int TABLE_FRAGMENT		= 1;
+	public static final int GRAPHIC_FRAGMENT	= 2;
+	public static final int HISTORY_FRAGMENT	= 3;
 	
 	private static final int COUNT_FRAGMENTS	= HISTORY_FRAGMENT + 1;
 	
@@ -30,15 +44,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 	
 	public static final int TYPE_PR_PERIOD	= 0;
 	public static final int TYPE_PR_DEBT	= 1;
-	
-//	private int m_type;
-//	private int m_period;
-//	private int m_summa;
-//	private double m_percent;
-//	private Calendar m_date;
-//	private int m_typePartRep;
-//	private Calendar m_partRepDate;
-//	private int m_partRepSumm;
 	
 	private UpdateStruct m_data = new UpdateStruct();
 	
@@ -94,6 +99,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         
         MainActivity.m_context = this;
         
+        //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);	// do not show the keyboard on start
+        
         SetTestData();
     }
 
@@ -104,13 +111,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 		m_data.percent		= 15.9;
 		m_data.date			= Calendar.getInstance();
 		m_data.date.set(2014, 3, 27);
-		m_data.typePartRep	= MainActivity.TYPE_PR_DEBT;
-		m_data.partRepDate	= Calendar.getInstance();
-		m_data.partRepSumm	= 0;
+		m_data.part			= new ArrayList<PartRepStruct>();
 	}
 
 	@Override
 	public void UpdateInputData(UpdateStruct upd_struct) {
+		int i;
 		if(upd_struct.type >= 0)
 		{
 			m_data.type		= upd_struct.type;
@@ -131,21 +137,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 		{
 			m_data.date = upd_struct.date;
 		}
-		if(upd_struct.typePartRep >= 0)
+		m_data.part.clear();
+		for(i=0; i< upd_struct.part.size(); i++)
 		{
-			m_data.typePartRep = upd_struct.typePartRep;
-		}
-		if(upd_struct.partRepDate != null)
-		{
-			m_data.partRepDate = upd_struct.partRepDate;
-		}
-		if(upd_struct.partRepSumm >= 0)
-		{
-			m_data.partRepSumm = upd_struct.partRepSumm;
+			m_data.part.add(upd_struct.part.get(i));
 		}
 
 		Log.d(LOG_TAG, "UpdateInputData type " + m_data.type + " period " + m_data.period + " summa " + m_data.summa + " percent " + m_data.percent
-				+ " date " + m_data.date + " typePR " + m_data.typePartRep + " partRepDate " + m_data.partRepDate + " partRepSumm " + m_data.partRepSumm);
+				+ " date " + m_data.date);
 	}
     
     @Override
@@ -209,9 +208,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     		break;
         case TABLE_FRAGMENT:
         	tf = (TableFragment) m_listFragment[TABLE_FRAGMENT];
-        	currFragment = tf;
-        	mf.UpdateMainData();
-        	UpdateFragmentData(currFragment);
+        	if(tf != null)
+        	{
+	        	currFragment = tf;
+	        	HideKeyboard();			// do not show the keyboard when open table fragment
+	        	mf.UpdateMainData();
+	        	UpdateFragmentData(currFragment);
+        	}
     		break;
         case GRAPHIC_FRAGMENT:
         	gf = (GraphicFragment) m_listFragment[GRAPHIC_FRAGMENT];
@@ -277,6 +280,31 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     return getString(R.string.TITLE_HISTORY).toUpperCase(l);
             }
             return null;
+        }
+    }
+    public void HideKeyboard()
+    {
+    	InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+    	if (getCurrentFocus() != null) {
+    		imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
+    }
+    
+    public void SetFragment(int position, Fragment currFrag) {
+        switch (position)
+        {
+        case MAIN_FRAGMENT:
+        	m_listFragment[MAIN_FRAGMENT] = currFrag;
+        	break;
+        case TABLE_FRAGMENT:
+        	m_listFragment[TABLE_FRAGMENT] = currFrag;
+        	break;
+        case GRAPHIC_FRAGMENT:
+        	m_listFragment[GRAPHIC_FRAGMENT] = currFrag;
+        	break;
+        case HISTORY_FRAGMENT:
+        	m_listFragment[HISTORY_FRAGMENT] = currFrag;
+        	break;
         }
     }
 }

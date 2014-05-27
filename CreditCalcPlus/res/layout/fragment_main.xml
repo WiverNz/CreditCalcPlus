@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/table_scroll1"
+    android:id="@+id/mainFragment_table_scroll1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_mf_repeat" >
@@ -9,7 +9,10 @@
         android:id="@+id/mainTable"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp" >
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:padding="10dp"
+        android:stretchColumns="*" >
 
         <TableLayout
             android:layout_width="match_parent"
@@ -120,108 +123,72 @@
 
         <TableLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center" >
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginTop="2dp"
-                    android:gravity="center"
-                    android:text="@string/tvAnticipatedRepayment"
-                    android:textColor="@color/green"
-                    android:textSize="16sp" >
-                </TextView>
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center" >
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginTop="0dp"
-                    android:gravity="center"
-                    android:text="@string/tvTypeOfRepayment"
-                    android:textSize="16sp" >
-                </TextView>
-            </TableRow>
-
-            <RadioGroup
-                android:id="@+id/rgTypeOfRepayment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"
-                android:layout_marginTop="0dp"
-                android:orientation="vertical" >
-
-                <RadioButton
-                    android:id="@+id/rbPartRepPeriod"
-                    style="@style/MainFragmentRadioButtons"
-                    android:checked="true"
-                    android:text="@string/rbPartRepPeriod" >
-                </RadioButton>
-
-                <RadioButton
-                    android:id="@+id/rbPartRepDebt"
-                    style="@style/MainFragmentRadioButtons"
-                    android:checked="false"
-                    android:text="@string/rbPartRepDebt" >
-                </RadioButton>
-            </RadioGroup>
-        </TableLayout>
-
-        <TableLayout
-            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:stretchColumns="1" >
+            android:stretchColumns="0" >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:text=""
+                android:textSize="12sp" >
+            </TextView>
 
             <TableRow
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" >
 
                 <TextView
-                    style="@style/MainFragmentColumnNames_TV"
-                    android:text="@string/tvPartRepDate" >
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginTop="2dp"
+                    android:gravity="left"
+                    android:text="@string/tvAnticipatedRepayment"
+                    android:textColor="@color/green"
+                    android:textSize="16sp" >
                 </TextView>
 
-                <EditText
-                    android:id="@+id/etPartRepDate"
-                    style="@style/EditText_date" >
-                </EditText>
-            </TableRow>
+                <Button
+                    android:id="@+id/btnAddPartRep"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_column="1"
+                    android:text="@string/btnAddPartRep"
+                    android:textSize="12sp" >
+                </Button>
 
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp" >
-
-                <TextView
-                    style="@style/MainFragmentColumnNames_TV"
-                    android:text="@string/tvPartRepSumm" >
-                </TextView>
-
-                <EditText
-                    android:id="@+id/etPartRepSumm"
-                    style="@style/EditText_numberSigned" >
-                </EditText>
+                <Button
+                    android:id="@+id/btnClearPartRep"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_column="2"
+                    android:text="@string/btnClearPartRep"
+                    android:textSize="12sp" >
+                </Button>
             </TableRow>
         </TableLayout>
 
         <TableLayout
+            android:id="@+id/tblPartRep"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+        </TableLayout>
+
+        <TableLayout
+            android:id="@+id/tblButtons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:orientation="horizontal"
             android:stretchColumns="*" >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:text=""
+                android:textSize="12sp" >
+            </TextView>
 
             <TableRow
                 android:layout_width="match_parent"
