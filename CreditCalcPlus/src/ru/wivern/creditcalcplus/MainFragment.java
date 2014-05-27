@@ -154,7 +154,7 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 			AddPartView();
 			break;
 		case R.id.btnClearPartRep:
-
+			ClearPartViews();
 			break;
 		case R.id.btnSaveHistory:
 			Toast.makeText(getActivity(), "Пока не работает", Toast.LENGTH_SHORT).show();
