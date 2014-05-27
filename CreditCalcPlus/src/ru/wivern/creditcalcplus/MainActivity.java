@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, IUpdateData {
+	// comment
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
