@@ -1,5 +1,6 @@
 package ru.wivern.creditcalcplus;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
@@ -16,6 +17,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
@@ -35,7 +37,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
-		m_data = (UpdateStruct) savedInstanceState.getParcelable(UpdateStruct.class.getCanonicalName());
 	}
 	public static final int MAIN_FRAGMENT		= 0;
 	public static final int TABLE_FRAGMENT		= 1;
@@ -56,11 +57,24 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 	
 	public static final String LOG_TAG = "LOG_INFO";
 	
+	public static SimpleDateFormat m_date_format = new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
+	
     SectionsPagerAdapter mSectionsPagerAdapter;
 
     ViewPager mViewPager;
 
     public static Context m_context;
+    
+    public static final int NUM_OF_PAY_COLUMN			= 0;
+    public static final int DATE_PAY_COLUMN				= 1;
+    public static final int SUMM_PAY_COLUMN				= 2;
+    public static final int SUMM_CREDIT_COLUMN			= 3;
+    public static final int SUMM_PROCENT_COLUMN			= 4;
+    public static final int SUMM_COMMISSION_COLUMN		= 5;
+    public static final int SUMM_REST_FOR_PAY_COLUMN	= 6;
+    public static final int SUMM_PART_RE_PAY_COLUMN		= 7;
+
+    public static final int NUMB_OF_COLUMNS				= 8;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,8 +119,15 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         MainActivity.m_context = this;
         
         //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);	// do not show the keyboard on start
-        
-        SetTestData();
+        if(savedInstanceState == null)
+        {
+        	SetTestData();
+        }
+        else
+        {
+        	m_data = (UpdateStruct) savedInstanceState.getParcelable(UpdateStruct.class.getCanonicalName());
+        }
+		Log.d(LOG_TAG, "MainActivity onCreate summa " + m_data.summa + " activity " + this.hashCode() + " size " + m_data.part.size());
     }
 
 	private void SetTestData() {
@@ -148,8 +169,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 			m_data.part.add(upd_struct.part.get(i));
 		}
 
-		Log.d(LOG_TAG, "UpdateInputData type " + m_data.type + " period " + m_data.period + " summa " + m_data.summa + " percent " + m_data.percent
-				+ " date " + m_data.date);
+		Log.d(LOG_TAG, "MainActivity UpdateInputData summa " + m_data.summa + " activity " + this.hashCode() + " size " + upd_struct.part.size());
 	}
     
     @Override
@@ -165,7 +185,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-    	Log.d(LOG_TAG, "onOptionsItemSelected " + item.getItemId());
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             return true;
@@ -200,12 +219,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
         // When the given tab is selected, switch to the corresponding page in
         // the ViewPager.
-    	Log.d(LOG_TAG, "onTabSelected " + tab.getPosition());
+    	//Log.d(LOG_TAG, "onTabSelected " + tab.getPosition());
     	Object currFragment = null;
     	MainFragment mf = (MainFragment) m_listFragment[MAIN_FRAGMENT];
     	TableFragment tf = null;
-    	GraphicFragment gf = null;
-    	HistoryFragment hf = null;
+    	//GraphicFragment gf = null;
+    	//HistoryFragment hf = null;
         switch (tab.getPosition())
         {
         case MAIN_FRAGMENT:
@@ -222,10 +241,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         	}
     		break;
         case GRAPHIC_FRAGMENT:
-        	gf = (GraphicFragment) m_listFragment[GRAPHIC_FRAGMENT];
+        	//gf = (GraphicFragment) m_listFragment[GRAPHIC_FRAGMENT];
     		break;
         case HISTORY_FRAGMENT:
-        	hf = (HistoryFragment) m_listFragment[HISTORY_FRAGMENT];
+        	//hf = (HistoryFragment) m_listFragment[HISTORY_FRAGMENT];
     		break;
         }
 
@@ -312,4 +331,131 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         	break;
         }
     }
+    
+	public static ArrayList<SparseArray<Object>> UpdateArrayList(
+			UpdateStruct upd_struct) {
+		ArrayList<SparseArray<Object>> curr_data = new ArrayList<SparseArray<Object>>();
+		int i, j;
+		Calendar currDayOfPay = (Calendar) upd_struct.date.clone();
+		Calendar prevDayOfPay = (Calendar) upd_struct.date.clone();
+		int currNumbOfLines = upd_struct.period;
+
+		final double currMounhtPerc = upd_struct.percent / (12 * 100);
+		double summOfMonthPay = 0;
+		double currRestForPay = upd_struct.summa;
+		double currProcSumm = 0;
+		double currCredSumm = 0;
+		double currCommission = 0;
+		double currPartRepSumm = 0;
+		int currNOfPay = 0;
+
+		for (i = 0; i < currNumbOfLines; i++) {
+			currPartRepSumm = 0;
+			SparseArray<Object> currItem = new SparseArray<Object>();
+			currNOfPay = i + 1;
+			currProcSumm = currRestForPay * currMounhtPerc;
+			switch (upd_struct.type) {
+			case MainActivity.TYPE_ANNUITY:
+				summOfMonthPay = upd_struct.summa
+						* (currMounhtPerc + currMounhtPerc
+								/ (Math.pow(1 + currMounhtPerc,
+										upd_struct.period) - 1));
+				
+				currCredSumm = summOfMonthPay - currProcSumm;
+				break;
+			case MainActivity.TYPE_DIFFERENTIATED:
+				currCredSumm = upd_struct.summa / upd_struct.period;
+				summOfMonthPay = currCredSumm + currProcSumm;
+				break;
+			}
+			currRestForPay = currRestForPay - currCredSumm;
+			
+			for(j=0; j<upd_struct.part.size(); j++)
+			{
+				UpdateStruct.PartRepStruct prs = upd_struct.part.get(j);
+				if(prs.partRepDate.compareTo(prevDayOfPay) > 0 && prs.partRepDate.compareTo(currDayOfPay) <= 0)
+				{
+					currPartRepSumm = currPartRepSumm + prs.partRepSumm;
+				}
+			}
+			
+			currItem.put(NUM_OF_PAY_COLUMN,			currNOfPay);				// Int
+			currItem.put(DATE_PAY_COLUMN,			currDayOfPay.clone());		// Calendar
+			currItem.put(SUMM_PAY_COLUMN,			summOfMonthPay);			// Double
+			currItem.put(SUMM_CREDIT_COLUMN,		currCredSumm);				// Double
+			currItem.put(SUMM_PROCENT_COLUMN,		currProcSumm);				// Double
+			currItem.put(SUMM_COMMISSION_COLUMN,	currCommission);			// Double
+			currItem.put(SUMM_REST_FOR_PAY_COLUMN,	Math.abs(currRestForPay));	// Double
+			currItem.put(SUMM_PART_RE_PAY_COLUMN,	currPartRepSumm);			// Double
+
+			curr_data.add(currItem);
+			
+			prevDayOfPay = (Calendar) currDayOfPay.clone();
+			currDayOfPay.add(Calendar.MONTH, 1);
+		}
+
+		return curr_data;
+	}
+	
+	public static double CalcSummByColumn(ArrayList<SparseArray<Object>> curr_data, int nOfColumn)
+	{
+		double retVal = 0;
+		int i;
+		SparseArray<Object> currItem;
+		Double currVal = (double) 0;
+		for(i=0; i<curr_data.size(); i++)
+		{
+			currItem = curr_data.get(i);
+			if(currItem != null)
+			{
+				try
+				{
+					currVal = (Double) currItem.get(nOfColumn);
+				}					
+				catch (ClassCastException e)
+				{
+					e.printStackTrace();
+				}
+				finally
+				{
+					retVal = retVal + currVal;
+				}
+			}
+		}
+		return retVal;
+	}
+	
+	public static double CalcAverageByColumn(ArrayList<SparseArray<Object>> curr_data, int nOfColumn)
+	{
+		double retVal = 0;
+		double n;
+		int i;
+		SparseArray<Object> currItem;
+		Double currVal = (double) 0;
+		n = 0;
+		for(i=0; i<curr_data.size(); i++)
+		{
+			currItem = curr_data.get(i);
+			if(currItem != null)
+			{
+				try
+				{
+					currVal = (Double) currItem.get(nOfColumn);
+				}					
+				catch (ClassCastException e)
+				{
+					e.printStackTrace();
+				}
+				finally
+				{
+					retVal = retVal + currVal;
+					n = n + 1;
+				}
+			}
+		}
+		
+		retVal = retVal / n;
+
+		return retVal;
+	}
 }

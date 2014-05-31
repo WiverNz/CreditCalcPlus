@@ -13,6 +13,7 @@ public class UpdateStruct implements Parcelable {
 	public double	percent;
 	public Calendar	date;
 	public ArrayList<PartRepStruct> part;
+	public boolean	firstOnlyProc;
 	
 	public UpdateStruct()
 	{
@@ -22,6 +23,7 @@ public class UpdateStruct implements Parcelable {
 		percent			= -1;
 		date			= Calendar.getInstance();
 		part			= new ArrayList<PartRepStruct>();
+		firstOnlyProc	= false;
 	}
 	
 	public static class PartRepStruct {
@@ -70,6 +72,7 @@ public class UpdateStruct implements Parcelable {
 			parcel.writeInt(prs.partRepDate.get(Calendar.DAY_OF_MONTH));
 			parcel.writeInt(prs.partRepSumm);
 		}
+		parcel.writeByte((byte) (firstOnlyProc ? 1 : 0));
 	}
 	
 	public UpdateStruct(Parcel parcel)
@@ -100,6 +103,6 @@ public class UpdateStruct implements Parcelable {
 			prs.partRepSumm		= parcel.readInt();
 			part.add(prs);
 		}
-
+		firstOnlyProc = parcel.readByte() != 0;
 	}
 }
