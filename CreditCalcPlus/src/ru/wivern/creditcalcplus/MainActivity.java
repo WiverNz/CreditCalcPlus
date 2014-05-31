@@ -30,6 +30,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 	//comment denis
 	//comment DENIS 31.05
 	//comment DENIS 31.05+
+	//коммент ласт
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
