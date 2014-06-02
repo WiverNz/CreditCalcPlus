@@ -15,6 +15,9 @@ public class UpdateStruct implements Parcelable {
 	public ArrayList<PartRepStruct> part;
 	public boolean	firstOnlyProc;
 	
+	public double	comission;
+	public int		comission_type;
+	
 	public UpdateStruct()
 	{
 		type			= -1;
@@ -24,6 +27,8 @@ public class UpdateStruct implements Parcelable {
 		date			= Calendar.getInstance();
 		part			= new ArrayList<PartRepStruct>();
 		firstOnlyProc	= false;
+		comission		= -1;
+		comission_type	= -1;
 	}
 	
 	public static class PartRepStruct {
@@ -73,6 +78,8 @@ public class UpdateStruct implements Parcelable {
 			parcel.writeInt(prs.partRepSumm);
 		}
 		parcel.writeByte((byte) (firstOnlyProc ? 1 : 0));
+		parcel.writeDouble(comission);
+		parcel.writeInt(comission_type);
 	}
 	
 	public UpdateStruct(Parcel parcel)
@@ -103,6 +110,8 @@ public class UpdateStruct implements Parcelable {
 			prs.partRepSumm		= parcel.readInt();
 			part.add(prs);
 		}
-		firstOnlyProc = parcel.readByte() != 0;
+		firstOnlyProc	= parcel.readByte() != 0;
+		comission		= parcel.readDouble();
+		comission_type	= parcel.readInt();
 	}
 }

@@ -19,6 +19,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
@@ -26,25 +29,30 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
-// получить результат datepicker для каждого edittext не через etCurrSelectedDateForm
-public class MainFragment extends Fragment implements OnClickListener, OnEditorActionListener, OnDateSetListener, OnTouchListener, IUpdateData, OnSeekBarChangeListener {
+// need change datepicker to get edittext not from etCurrSelectedDateForm
+public class MainFragment extends Fragment implements OnClickListener, OnEditorActionListener, OnDateSetListener, OnTouchListener, IUpdateData, OnSeekBarChangeListener, OnItemSelectedListener {
 	/**
      * The fragment argument representing the section number for this
      * fragment.
      */
     private static final String ARG_SECTION_NUMBER = "section_number";
     public static final int DATE_DIALOG_ID = 1;
-    RadioGroup rgTypeOfCredit;
-    EditText etSumma;
-    SeekBar sbSumma;
-    EditText etPercent;
-    EditText etPeriod;
-    EditText etFirstDate;
+    TableLayout	tblMData;
+    RadioGroup	rgTypeOfCredit;
+    EditText	etSumma;
+    SeekBar		sbSumma;
+    EditText	etPercent;
+    EditText	etPeriod;
+    EditText	etFirstDate;
+    
+    EditText	etComission;
+    Spinner		spComissionType;
     
     CheckBox cbFirstOnlyProc;
     
@@ -108,7 +116,7 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         
         m_container = container;
-        
+        tblMData = (TableLayout) rootView.findViewById(R.id.tblMData);
         rgTypeOfCredit = (RadioGroup) rootView.findViewById(R.id.rgTypeOfCredit);
         
         etSumma = (EditText) rootView.findViewById(R.id.etSumma);
@@ -130,6 +138,19 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
         etFirstDate.setOnTouchListener(this);
         etFirstDate.setOnEditorActionListener(this);
         etFirstDate.setInputType(InputType.TYPE_NULL);
+
+        etComission = (EditText) rootView.findViewById(R.id.etComission);
+        etComission.setOnEditorActionListener(this);
+//        Resources res = getResources();
+//        ArrayList<String> spComissionTypeList = new ArrayList<String>();
+//        Collections.addAll(spComissionTypeList, res.getStringArray(R.array.spComissionTypeList));
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getActivity(), R.layout.spinner_comission_item, getResources().getStringArray(R.array.spComissionTypeList));
+        adapter.setDropDownViewResource(R.layout.spinner_comission_dropdown_item);
+        spComissionType = (Spinner) rootView.findViewById(R.id.spComissionType);
+        spComissionType.setAdapter(adapter);
+        spComissionType.setPromptId(R.string.spComissionType);
+        spComissionType.setSelection(0);
+        spComissionType.setOnItemSelectedListener(this);
         
         cbFirstOnlyProc = (CheckBox) rootView.findViewById(R.id.cbFirstOnlyProc);
         //cbFirstOnlyProc.setOnTouchListener(this);
@@ -200,10 +221,10 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 			ClearPartViews();
 			break;
 		case R.id.btnSaveHistory:
-			Toast.makeText(getActivity(), "Пока не работает", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getActivity(), "РџРѕРєР° РЅРµ СЂР°Р±РѕС‚Р°РµС‚", Toast.LENGTH_SHORT).show();
 			break;
 		case R.id.btnSettings:
-			Toast.makeText(getActivity(), "Пока не работает", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getActivity(), "РџРѕРєР° РЅРµ СЂР°Р±РѕС‚Р°РµС‚", Toast.LENGTH_SHORT).show();
 			break;
 		case R.id.btnClose:
 			getActivity().finish();
@@ -234,6 +255,7 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 		tblPartRep.addView(childView);
 		m_countOfPartRep = m_countOfPartRep + 1;
 		tblButtons.requestLayout();	// Update text on buttons
+		tblMData.requestLayout();
 		
 		return childView;
 	}
@@ -275,6 +297,7 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 			tblPartRep.removeView(currView);
 			m_countOfPartRep = m_countOfPartRep - 1;
 			tblButtons.requestLayout();	// Update text on buttons
+			tblMData.requestLayout();
 			UpdMonthPay();
 		}
 	}
@@ -284,6 +307,7 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 		m_countOfPartRep = 0;
 		tblPartRep.removeAllViews();
 		tblButtons.requestLayout();	// Update text on buttons
+		tblMData.requestLayout();
 		UpdMonthPay();
 	}
 	
@@ -322,6 +346,15 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 				e.printStackTrace();
 			}
 		}
+		
+		currText = etComission.getText().toString();
+		if (TextUtils.isEmpty(currText) == false) {
+			upd_struct.comission = Double.parseDouble(currText);
+		} else {
+			upd_struct.comission = 0;
+		}
+		
+		upd_struct.comission_type = spComissionType.getSelectedItemPosition();
 
 		upd_struct.firstOnlyProc = cbFirstOnlyProc.isChecked();
 		
@@ -529,6 +562,8 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 	    etPercent.setText(Double.toString(upd_struct.percent));
 	    etPeriod.setText(Integer.toString(upd_struct.period));
 	    etFirstDate.setText(MainActivity.m_date_format.format(upd_struct.date.getTime()));
+	    etComission.setText(Double.toString(upd_struct.comission));
+	    spComissionType.setSelection(upd_struct.comission_type);
 	    cbFirstOnlyProc.setChecked(upd_struct.firstOnlyProc);
 	    ClearPartViews();
 	    for(i=0; i<upd_struct.part.size(); i++)
@@ -585,7 +620,7 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 		UpdateStruct upd_struct = GetUpdStructFromForm();
 		ArrayList<SparseArray<Object>> curr_data = MainActivity.UpdateArrayList(upd_struct);
 		double currProc = MainActivity.CalcAverageByColumn(curr_data, MainActivity.SUMM_PAY_COLUMN);
-		double currRepColumn = MainActivity.CalcSummByColumn(curr_data, MainActivity.SUMM_PROCENT_COLUMN);
+		double currRepColumn = MainActivity.CalcSummByColumn(curr_data, MainActivity.SUMM_PROCENT_COLUMN) + MainActivity.CalcSummByColumn(curr_data, MainActivity.SUMM_COMMISSION_COLUMN);
 		try
 		{
 			etInMonth.setText(double_format.format((Double)currProc));
@@ -600,6 +635,8 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 	
 	private void UpdSummByMonthPay(int currValInt)
 	{
+		NumberFormat double_format = NumberFormat.getNumberInstance();
+		double_format.setMaximumFractionDigits(0);
 		UpdateStruct upd_struct = GetUpdStructFromForm();
 		final double currMounhtPerc = upd_struct.percent / (12 * 100);
 		double coef1 = 0;
@@ -614,9 +651,30 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 			summa = (int)((double)(currValInt) / (1./upd_struct.period + currMounhtPerc/2.));
 			break;
 		}
-
+		upd_struct.percent	= (double)currValInt;
+		upd_struct.summa	= summa;
 		etSumma.setText(Integer.toString(summa));
 		sbSumma.setProgress(summa);
+		
+		ArrayList<SparseArray<Object>> curr_data = MainActivity.UpdateArrayList(upd_struct);
+		double currRepColumn = MainActivity.CalcSummByColumn(curr_data, MainActivity.SUMM_PROCENT_COLUMN) + MainActivity.CalcSummByColumn(curr_data, MainActivity.SUMM_COMMISSION_COLUMN);
+		try
+		{
+			etOverPay.setText(double_format.format((Double)currRepColumn));
+		}
+		catch (NumberFormatException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	@Override
+	public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,
+			long arg3) {
+
+	}
+	@Override
+	public void onNothingSelected(AdapterView<?> arg0) {
+
 	}
 	
 }

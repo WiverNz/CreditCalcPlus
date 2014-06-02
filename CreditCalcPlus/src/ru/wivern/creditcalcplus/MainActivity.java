@@ -30,7 +30,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 	//comment denis
 	//comment DENIS 31.05
 	//comment DENIS 31.05+
-	//коммент ласт
+	//РєРѕРјРјРёС‚
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
@@ -53,6 +53,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 	
 	public static final int TYPE_PR_PERIOD	= 0;
 	public static final int TYPE_PR_DEBT	= 1;
+	
+	public static final int TYPE_COMISSION_PERC_SUMM	= 0;
+	public static final int TYPE_COMISSION_PERC_CRED	= 1;
+	public static final int TYPE_COMISSION_RUB			= 2;
 	
 	private UpdateStruct m_data = new UpdateStruct();
 	
@@ -134,13 +138,15 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
 	private void SetTestData() {
-		m_data.type			= MainActivity.TYPE_ANNUITY;
-		m_data.period		= 24;
-		m_data.summa		= 120000;
-		m_data.percent		= 15.9;
-		m_data.date			= Calendar.getInstance();
+		m_data.type				= MainActivity.TYPE_ANNUITY;
+		m_data.period			= 24;
+		m_data.summa			= 120000;
+		m_data.percent			= 15.9;
+		m_data.date				= Calendar.getInstance();
 		m_data.date.set(2014, 3, 27);
-		m_data.part			= new ArrayList<PartRepStruct>();
+		m_data.comission		= 0;
+		m_data.comission_type	= MainActivity.TYPE_COMISSION_PERC_SUMM;
+		m_data.part				= new ArrayList<PartRepStruct>();
 	}
 
 	@Override
@@ -166,6 +172,15 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 		{
 			m_data.date = upd_struct.date;
 		}
+		if(upd_struct.comission >= 0)
+		{
+			m_data.comission = upd_struct.comission;
+		}
+		if(upd_struct.comission_type >= 0)
+		{
+			m_data.comission_type = upd_struct.comission_type;
+		}
+		m_data.firstOnlyProc = upd_struct.firstOnlyProc;
 		m_data.part.clear();
 		for(i=0; i< upd_struct.part.size(); i++)
 		{
@@ -341,43 +356,101 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 		int i, j;
 		Calendar currDayOfPay = (Calendar) upd_struct.date.clone();
 		Calendar prevDayOfPay = (Calendar) upd_struct.date.clone();
-		int currNumbOfLines = upd_struct.period;
+		int currNOfPeriods = upd_struct.period;
 
-		final double currMounhtPerc = upd_struct.percent / (12 * 100);
+		double currMounhtPerc = upd_struct.percent / (12 * 100);
 		double summOfMonthPay = 0;
+		double currSummOfMonthPay = 0;
 		double currRestForPay = upd_struct.summa;
 		double currProcSumm = 0;
 		double currCredSumm = 0;
 		double currCommission = 0;
 		double currPartRepSumm = 0;
 		int currNOfPay = 0;
+		ArrayList<PartRepStruct> part = new ArrayList<PartRepStruct>();
+		switch (upd_struct.type) {
+		case MainActivity.TYPE_ANNUITY:
+			if (upd_struct.firstOnlyProc == true) {
+				currSummOfMonthPay = currRestForPay
+						* (currMounhtPerc + currMounhtPerc
+								/ (Math.pow(1 + currMounhtPerc,
+										currNOfPeriods + 1) - 1));
+			} else {
+				currSummOfMonthPay = currRestForPay
+						* (currMounhtPerc + currMounhtPerc
+								/ (Math.pow(1 + currMounhtPerc, currNOfPeriods) - 1));
+			}
+			break;
+		case MainActivity.TYPE_DIFFERENTIATED:
 
-		for (i = 0; i < currNumbOfLines; i++) {
+			break;
+		}
+		for (i = 0; i < currNOfPeriods; i++) {
 			currPartRepSumm = 0;
 			SparseArray<Object> currItem = new SparseArray<Object>();
 			currNOfPay = i + 1;
 			currProcSumm = currRestForPay * currMounhtPerc;
 			switch (upd_struct.type) {
 			case MainActivity.TYPE_ANNUITY:
-				summOfMonthPay = upd_struct.summa
-						* (currMounhtPerc + currMounhtPerc
-								/ (Math.pow(1 + currMounhtPerc,
-										upd_struct.period) - 1));
-				
+				if(upd_struct.firstOnlyProc == true)
+				{
+					if(i==0)
+					{
+						summOfMonthPay = currProcSumm;
+					}
+					else
+					{
+						summOfMonthPay = currSummOfMonthPay;
+					}
+				}
+				else
+				{
+					summOfMonthPay = currSummOfMonthPay;
+				}
+				summOfMonthPay = Math.min(summOfMonthPay, currRestForPay + currProcSumm);
 				currCredSumm = summOfMonthPay - currProcSumm;
 				break;
 			case MainActivity.TYPE_DIFFERENTIATED:
-				currCredSumm = upd_struct.summa / upd_struct.period;
+				currCredSumm = currRestForPay / (currNOfPeriods - i);
 				summOfMonthPay = currCredSumm + currProcSumm;
 				break;
 			}
-			currRestForPay = currRestForPay - currCredSumm;
-			
+			if(currRestForPay <= 0)
+			{
+				break;
+			}
+			else if(currRestForPay < currCredSumm)
+			{
+				currRestForPay = 0;
+			}
+			else
+			{
+				currRestForPay = currRestForPay - currCredSumm;
+			}
+
+			if(upd_struct.comission > 0)
+			{
+				switch(upd_struct.comission_type)
+				{
+				case MainActivity.TYPE_COMISSION_PERC_SUMM:
+					currCommission = upd_struct.summa * upd_struct.comission / 100.;
+					break;
+				case MainActivity.TYPE_COMISSION_PERC_CRED:
+					currCommission = currRestForPay * upd_struct.comission / 100.;
+					break;
+				case MainActivity.TYPE_COMISSION_RUB:
+					currCommission = upd_struct.comission;
+					break;
+				}
+				summOfMonthPay = summOfMonthPay + currCommission;
+			}
+			part.clear();
 			for(j=0; j<upd_struct.part.size(); j++)
 			{
 				UpdateStruct.PartRepStruct prs = upd_struct.part.get(j);
 				if(prs.partRepDate.compareTo(prevDayOfPay) > 0 && prs.partRepDate.compareTo(currDayOfPay) <= 0)
 				{
+					part.add(prs);
 					currPartRepSumm = currPartRepSumm + prs.partRepSumm;
 				}
 			}
@@ -395,9 +468,63 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 			
 			prevDayOfPay = (Calendar) currDayOfPay.clone();
 			currDayOfPay.add(Calendar.MONTH, 1);
+			//int restPeriod = upd_struct.period - currNOfPay;
+			if(part.size() > 0)
+			{
+				for(PartRepStruct prs : part)
+				{
+					currRestForPay = currRestForPay - currPartRepSumm;
+					switch(prs.typePartRep)
+					{
+					case MainActivity.TYPE_PR_DEBT:
+						switch(upd_struct.type)
+						{
+						case MainActivity.TYPE_ANNUITY:
+							currSummOfMonthPay = currRestForPay
+							* (currMounhtPerc + currMounhtPerc
+									/ (Math.pow(1 + currMounhtPerc,
+											currNOfPeriods - i) - 1));
+							break;
+						case MainActivity.TYPE_DIFFERENTIATED:
+							break;
+						}
+						break;
+					case MainActivity.TYPE_PR_PERIOD:
+						switch(upd_struct.type)
+						{
+						case MainActivity.TYPE_ANNUITY:
+							currNOfPeriods = currNOfPay + RoundDoubleToUpInt(Math.log(summOfMonthPay/(summOfMonthPay-currMounhtPerc*currRestForPay)) / Math.log(1 + currMounhtPerc));
+
+//							* (currMounhtPerc + currMounhtPerc
+//									/ (Math.pow(1 + currMounhtPerc,
+//											currNOfPeriods2 - i) - 1));
+//							== 		
+//									* (currMounhtPerc1 + currMounhtPerc1
+//											/ (Math.pow(1 + currMounhtPerc1,
+//													currNOfPeriods - i) - 1));
+							break;
+						case MainActivity.TYPE_DIFFERENTIATED:
+							break;
+						}
+						//currNOfPeriod
+						break;
+					}
+				}
+			}
 		}
 
 		return curr_data;
+	}
+	
+	static int RoundDoubleToUpInt(double val)
+	{
+		int retVal = (int) val;
+		if(val > (double) retVal)
+		{
+			retVal = retVal + 1;
+		}
+		
+		return retVal;
 	}
 	
 	public static double CalcSummByColumn(ArrayList<SparseArray<Object>> curr_data, int nOfColumn)

@@ -22,7 +22,7 @@ import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
 import android.widget.TextView;
 
-// При закрытии отключать asynctask
+// пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ asynctask
 public class TableFragment extends Fragment implements IUpdateData {
     /**
      * The fragment argument representing the section number for this
@@ -33,7 +33,7 @@ public class TableFragment extends Fragment implements IUpdateData {
     private TableLayout tblHeader;
     private TableLayout tblMain;
     
-    private static final boolean[] m_columnVisible = new boolean[] {true, true, true, true, true, false, true, true};
+    private static final boolean[] m_columnVisible = new boolean[] {true, true, true, true, true, true, true, true};
     
     private static final int[] m_columnWidths = new int[] {4, 10, 10, 10, 10, 10, 10, 10};
     private static final int m_rowHeight = 25;
@@ -254,6 +254,8 @@ public class TableFragment extends Fragment implements IUpdateData {
 					currItemText = double_format.format(currVal);
 					break;
 				case MainActivity.SUMM_COMMISSION_COLUMN:
+					currVal = MainActivity.CalcSummByColumn(m_tf.m_data, i);
+					currItemText = double_format.format(currVal);
 					break;
 				case MainActivity.SUMM_REST_FOR_PAY_COLUMN:
 					if(upd_struct != null)

@@ -47,6 +47,13 @@
 		<item name="android:layout_column">2</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
+   
+    <style name="MainFragmentColumnInfo_SP">
+		<item name="android:layout_weight">1</item>
+		<item name="android:layout_column">2</item>
+        <item name="android:layout_height">34dp</item>
+        <item name="android:textSize">12sp</item>
+    </style>
     
     <style name="MainFragmentRadioButtons">
 		<item name="android:layout_width">wrap_content</item>

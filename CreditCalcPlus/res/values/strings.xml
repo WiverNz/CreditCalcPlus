@@ -15,6 +15,13 @@
     <string name="tvPercent">Ставка %</string>
     <string name="tvPeriod">Срок в месяцах</string>
     <string name="tvFirstDate">Первый платёж</string>
+    <string name="tvComission">Мес. комиссии</string>
+    <string name="spComissionType">Тип комиссии</string>
+    <string-array name="spComissionTypeList">
+        <item>% суммы кредита</item>
+        <item>% от остатка долга</item>
+        <item>руб.</item>
+    </string-array>
     <string name="tvAnticipatedRepayment">Досрочные погашения:</string>
     <string name="tvTypeOfRepayment">Вид погашения</string>
     <string name="rbPartRepPeriod">Уменьшение срока кредита</string>

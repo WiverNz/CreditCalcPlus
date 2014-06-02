@@ -56,6 +56,7 @@
         </TableLayout>
 
         <TableLayout
+            android:id="@+id/tblMData"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:stretchColumns="2" >
@@ -139,7 +140,28 @@
                     android:text="" >
                 </TextView>
             </TableRow>
-            
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    style="@style/MainFragmentColumnNames_TV"
+                    android:text="@string/tvComission" >
+                </TextView>
+
+                <EditText
+                    android:id="@+id/etComission"
+                    style="@style/EditText_numberDecimal" >
+                </EditText>
+
+                <Spinner
+                    android:id="@+id/spComissionType"
+                    style="@style/MainFragmentColumnInfo_SP"
+                    android:text="" >
+                </Spinner>
+            </TableRow>
+
             <TableRow
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" >
@@ -159,7 +181,7 @@
                     android:text="" >
                 </TextView>
             </TableRow>
-            
+
             <TableRow
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" >
@@ -171,8 +193,8 @@
 
                 <EditText
                     android:id="@+id/etOverPay"
-                    android:enabled="false"
-                    style="@style/EditText_numberSigned" >
+                    style="@style/EditText_numberSigned"
+                    android:enabled="false" >
                 </EditText>
 
                 <TextView
@@ -291,8 +313,6 @@
                 </Button>
             </TableRow>
         </TableLayout>
-
-
     </TableLayout>
 
 </ScrollView>
