@@ -386,8 +386,19 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 			break;
 		}
 		for (i = 0; i < currNOfPeriods; i++) {
+
 			currPartRepSumm = 0;
 			SparseArray<Object> currItem = new SparseArray<Object>();
+			part.clear();
+			for(j=0; j<upd_struct.part.size(); j++)
+			{
+				UpdateStruct.PartRepStruct prs = upd_struct.part.get(j);
+				if(prs.partRepDate.compareTo(prevDayOfPay) > 0 && prs.partRepDate.compareTo(currDayOfPay) <= 0)
+				{
+					part.add(prs);
+					currPartRepSumm = currPartRepSumm + prs.partRepSumm;
+				}
+			}
 			currNOfPay = i + 1;
 			currProcSumm = currRestForPay * currMounhtPerc;
 			switch (upd_struct.type) {
@@ -407,7 +418,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 				{
 					summOfMonthPay = currSummOfMonthPay;
 				}
-				summOfMonthPay = Math.min(summOfMonthPay, currRestForPay + currProcSumm);
+				summOfMonthPay = Math.min(summOfMonthPay, currRestForPay + currProcSumm - currPartRepSumm);
 				currCredSumm = summOfMonthPay - currProcSumm;
 				break;
 			case MainActivity.TYPE_DIFFERENTIATED:
@@ -415,6 +426,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 				summOfMonthPay = currCredSumm + currProcSumm;
 				break;
 			}
+			
 			if(currRestForPay <= 0)
 			{
 				break;
@@ -444,36 +456,26 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 				}
 				summOfMonthPay = summOfMonthPay + currCommission;
 			}
-			part.clear();
-			for(j=0; j<upd_struct.part.size(); j++)
-			{
-				UpdateStruct.PartRepStruct prs = upd_struct.part.get(j);
-				if(prs.partRepDate.compareTo(prevDayOfPay) > 0 && prs.partRepDate.compareTo(currDayOfPay) <= 0)
-				{
-					part.add(prs);
-					currPartRepSumm = currPartRepSumm + prs.partRepSumm;
-				}
-			}
-			
-			currItem.put(NUM_OF_PAY_COLUMN,			currNOfPay);				// Int
-			currItem.put(DATE_PAY_COLUMN,			currDayOfPay.clone());		// Calendar
-			currItem.put(SUMM_PAY_COLUMN,			summOfMonthPay);			// Double
-			currItem.put(SUMM_CREDIT_COLUMN,		currCredSumm);				// Double
-			currItem.put(SUMM_PROCENT_COLUMN,		currProcSumm);				// Double
-			currItem.put(SUMM_COMMISSION_COLUMN,	currCommission);			// Double
-			currItem.put(SUMM_REST_FOR_PAY_COLUMN,	Math.abs(currRestForPay));	// Double
-			currItem.put(SUMM_PART_RE_PAY_COLUMN,	currPartRepSumm);			// Double
+
+			currItem.put(NUM_OF_PAY_COLUMN,			currNOfPay);									// Int
+			currItem.put(DATE_PAY_COLUMN,			currDayOfPay.clone());							// Calendar
+			currItem.put(SUMM_PAY_COLUMN,			summOfMonthPay + currPartRepSumm);				// Double
+			currItem.put(SUMM_CREDIT_COLUMN,		currCredSumm);									// Double
+			currItem.put(SUMM_PROCENT_COLUMN,		currProcSumm);									// Double
+			currItem.put(SUMM_COMMISSION_COLUMN,	currCommission);								// Double
+			currItem.put(SUMM_REST_FOR_PAY_COLUMN,	Math.abs(currRestForPay - currPartRepSumm));	// Double
+			currItem.put(SUMM_PART_RE_PAY_COLUMN,	currPartRepSumm);								// Double
 
 			curr_data.add(currItem);
 			
 			prevDayOfPay = (Calendar) currDayOfPay.clone();
 			currDayOfPay.add(Calendar.MONTH, 1);
-			//int restPeriod = upd_struct.period - currNOfPay;
+			
 			if(part.size() > 0)
 			{
+				currRestForPay = currRestForPay - currPartRepSumm;
 				for(PartRepStruct prs : part)
 				{
-					currRestForPay = currRestForPay - currPartRepSumm;
 					switch(prs.typePartRep)
 					{
 					case MainActivity.TYPE_PR_DEBT:
@@ -483,7 +485,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 							currSummOfMonthPay = currRestForPay
 							* (currMounhtPerc + currMounhtPerc
 									/ (Math.pow(1 + currMounhtPerc,
-											currNOfPeriods - i) - 1));
+											currNOfPeriods - i - 1) - 1));
 							break;
 						case MainActivity.TYPE_DIFFERENTIATED:
 							break;
@@ -494,19 +496,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 						{
 						case MainActivity.TYPE_ANNUITY:
 							currNOfPeriods = currNOfPay + RoundDoubleToUpInt(Math.log(summOfMonthPay/(summOfMonthPay-currMounhtPerc*currRestForPay)) / Math.log(1 + currMounhtPerc));
-
-//							* (currMounhtPerc + currMounhtPerc
-//									/ (Math.pow(1 + currMounhtPerc,
-//											currNOfPeriods2 - i) - 1));
-//							== 		
-//									* (currMounhtPerc1 + currMounhtPerc1
-//											/ (Math.pow(1 + currMounhtPerc1,
-//													currNOfPeriods - i) - 1));
 							break;
 						case MainActivity.TYPE_DIFFERENTIATED:
 							break;
 						}
-						//currNOfPeriod
 						break;
 					}
 				}

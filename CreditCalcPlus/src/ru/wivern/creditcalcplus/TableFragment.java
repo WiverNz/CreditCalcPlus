@@ -136,13 +136,20 @@ public class TableFragment extends Fragment implements IUpdateData {
 		private void UpdateTableViews()
 		{
 			int i, j;
+			int currColor=0;
 			TableRow.LayoutParams wrapWrapTableRowParams = new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 			NumberFormat double_format = NumberFormat.getNumberInstance();
 			double_format.setMaximumFractionDigits(2);
 			BordersInfo biCurr = new BordersInfo();
 			Context context = m_tf.getActivity();
+			final int color1 = Color.WHITE;
+			final int color2 = context.getResources().getColor(R.color.blueback2);
+			final int color3 = context.getResources().getColor(R.color.blueback3);
 			int screenWidth = m_tf.getResources().getDisplayMetrics().widthPixels;
 			AddSummRow(context, wrapWrapTableRowParams, screenWidth);
+			Calendar currDayPay;
+			Calendar prevDayPay;
+			Calendar currDay = Calendar.getInstance();
 			if(biCurr.UpdLeftRight() == false)
 			{
 				return;
@@ -156,7 +163,21 @@ public class TableFragment extends Fragment implements IUpdateData {
 				biCurr.SetUpDown(i, m_tf.m_data.size(), 1);
 	            row.setPadding(0, biCurr.top, 0, biCurr.bottom);
 	            SparseArray<Object> currItem = m_tf.m_data.get(i);
-	            
+	            if(i%2 == 0)
+	            {
+	            	currColor = color1;
+	            }
+	            else
+	            {
+	            	currColor = color2;
+	            }
+				currDayPay   = (Calendar) ((Calendar)currItem.get(MainActivity.DATE_PAY_COLUMN)).clone();
+				prevDayPay   = (Calendar) currDayPay.clone();
+				prevDayPay.add(Calendar.MONTH, -1);
+				if(currDayPay.compareTo(currDay) >= 0 && prevDayPay.compareTo(currDay) < 0)
+				{
+					currColor = color3;
+				}
 				for(j=0; j<currItem.size(); j++)
 				{
 					if (isCancelled()) return;
@@ -173,7 +194,7 @@ public class TableFragment extends Fragment implements IUpdateData {
 							currItemText = ((Integer)currItemCol).toString();
 							break;
 						case MainActivity.DATE_PAY_COLUMN:
-							currItemText = MainActivity.m_date_format.format(((Calendar)currItemCol).getTime());
+							currItemText = MainActivity.m_date_format.format(((Calendar)currItemCol).getTime());	
 							break;
 						case MainActivity.SUMM_PAY_COLUMN:
 							currItemText = double_format.format((Double)currItemCol);
@@ -208,7 +229,8 @@ public class TableFragment extends Fragment implements IUpdateData {
 						currItemText = "";
 					}
 					biCurr.SetLeftRight(j, 1);
-					row.addView(TableFragment.makeTableRowWithText(context, screenWidth, currItemText, m_columnWidths[j], m_rowHeight, biCurr, Color.WHITE, 7));
+
+					row.addView(TableFragment.makeTableRowWithText(context, screenWidth, currItemText, m_columnWidths[j], m_rowHeight, biCurr, currColor, 7));
 				}
 				publishProgress(row);
 			}
