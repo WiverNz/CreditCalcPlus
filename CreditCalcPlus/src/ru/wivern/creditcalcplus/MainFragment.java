@@ -6,6 +6,7 @@ import java.util.Calendar;
 
 import android.app.Activity;
 import android.app.DatePickerDialog.OnDateSetListener;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
@@ -224,7 +225,9 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 			Toast.makeText(getActivity(), "Пока не работает", Toast.LENGTH_SHORT).show();
 			break;
 		case R.id.btnSettings:
-			Toast.makeText(getActivity(), "Пока не работает", Toast.LENGTH_SHORT).show();
+			Intent intent = new Intent();
+	        intent.setClass(getActivity(), SetPreferenceActivity.class);
+	        startActivityForResult(intent, 0); 
 			break;
 		case R.id.btnClose:
 			getActivity().finish();

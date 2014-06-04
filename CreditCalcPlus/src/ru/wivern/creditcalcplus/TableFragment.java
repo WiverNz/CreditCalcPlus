@@ -22,7 +22,7 @@ import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
 import android.widget.TextView;
 
-// ��� �������� ��������� asynctask
+// asynctask
 public class TableFragment extends Fragment implements IUpdateData {
     /**
      * The fragment argument representing the section number for this

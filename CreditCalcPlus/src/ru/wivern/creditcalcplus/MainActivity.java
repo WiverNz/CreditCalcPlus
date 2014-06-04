@@ -7,6 +7,7 @@ import java.util.Locale;
 
 import ru.wivern.creditcalcplus.UpdateStruct.PartRepStruct;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
@@ -205,6 +206,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
+			Intent intent = new Intent();
+	        intent.setClass(this, SetPreferenceActivity.class);
+	        startActivityForResult(intent, 0); 
             return true;
         }
         return super.onOptionsItemSelected(item);
