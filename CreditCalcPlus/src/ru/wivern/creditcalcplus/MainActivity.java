@@ -382,7 +382,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 			}
 			break;
 		case MainActivity.TYPE_DIFFERENTIATED:
-
+			currCredSumm = currRestForPay / currNOfPeriods;
 			break;
 		}
 		for (i = 0; i < currNOfPeriods; i++) {
@@ -400,9 +400,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 				}
 			}
 			currNOfPay = i + 1;
-			currProcSumm = currRestForPay * currMounhtPerc;
+
 			switch (upd_struct.type) {
 			case MainActivity.TYPE_ANNUITY:
+				currProcSumm = currRestForPay * currMounhtPerc;
 				if(upd_struct.firstOnlyProc == true)
 				{
 					if(i==0)
@@ -422,7 +423,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 				currCredSumm = summOfMonthPay - currProcSumm;
 				break;
 			case MainActivity.TYPE_DIFFERENTIATED:
-				currCredSumm = currRestForPay / (currNOfPeriods - i);
+				currProcSumm = currRestForPay * currMounhtPerc;
+				
 				summOfMonthPay = currCredSumm + currProcSumm;
 				break;
 			}
@@ -488,6 +490,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 											currNOfPeriods - i - 1) - 1));
 							break;
 						case MainActivity.TYPE_DIFFERENTIATED:
+							currCredSumm = currRestForPay / currNOfPeriods;
 							break;
 						}
 						break;
