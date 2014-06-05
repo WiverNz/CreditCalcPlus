@@ -96,6 +96,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        m_sp = PreferenceManager.getDefaultSharedPreferences(this);
+        UpdateLanguage();
         setContentView(R.layout.activity_main);
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
@@ -145,7 +147,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         	m_data = (UpdateStruct) savedInstanceState.getParcelable(UpdateStruct.class.getCanonicalName());
         }
 		Log.d(LOG_TAG, "MainActivity onCreate summa " + m_data.summa + " activity " + this.hashCode() + " size " + m_data.part.size());
-		m_sp = PreferenceManager.getDefaultSharedPreferences(this);
 		//m_sp.edit().clear().commit();
     }
 
@@ -648,12 +649,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 	@Override
 	protected void onResume() {
 		super.onResume();
-		m_currLanguage	= m_sp.getString("language", "default");
 		UpdateLanguage();
 	}
 
 	private void UpdateLanguage()
 	{	
+		m_currLanguage	= m_sp.getString("language", "default");
         if (m_currLanguage.equals("default")) {m_currLanguage=getResources().getConfiguration().locale.getCountry();}
         m_locale = new Locale(m_currLanguage);
         Locale.setDefault(m_locale);

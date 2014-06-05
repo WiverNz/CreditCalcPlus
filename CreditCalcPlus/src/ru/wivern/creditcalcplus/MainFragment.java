@@ -230,7 +230,8 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 	        startActivityForResult(intent, 0); 
 			break;
 		case R.id.btnClose:
-			getActivity().finish();
+			//getActivity().finish();
+			System.exit(0);
 			break;
 		}
 	}
