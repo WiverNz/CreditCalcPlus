@@ -1,16 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <CheckBoxPreference
-        android:key="notif"
-        android:summary="Enable notifications"
-        android:title="Notifications" >
-    </CheckBoxPreference>
+    <ListPreference
+        android:entries="@array/languageArray"
+        android:entryValues="@array/languageArrayVal"
+        android:key="language"
+        android:summary="@string/prefSelLang"
+        android:title="@string/prefLang" >
+    </ListPreference>
 
-    <EditTextPreference
-        android:key="address"
-        android:summary="Address for notifications"
-        android:title="Address" >
-    </EditTextPreference>
+    <PreferenceScreen
+        android:key="screenTablSettings"
+        android:summary="@string/prefSelTablSettings"
+        android:title="@string/prefTablSettings">
+        <PreferenceCategory
+            android:key="categTablCol"
+            android:summary="@string/prefSelTablCol"
+            android:title="@string/prefTablCol">
+        </PreferenceCategory>
+    </PreferenceScreen>
 
 </PreferenceScreen>

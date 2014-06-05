@@ -32,13 +32,13 @@
     <string name="btnSettings">Настройки</string>
     <string name="btnClose">Закрыть</string>
 
-    <string name="colNameN">№ платежа</string>
-    <string name="colNameDatePay">Дата платежа</string>
-    <string name="colNameSummPay">Сумма платежа</string>
-    <string name="colNameCredPay">Основной долг</string>
-    <string name="colNameProcPay">Начисленные проценты</string>
-    <string name="colNameComsPay">Ежемесячные комиссии</string>
-    <string name="colNameRestPay">Остаток задолженности</string>
+<!--     <string name="colNameN">№ платежа</string> -->
+<!--     <string name="colNameDatePay">Дата платежа</string> -->
+<!--     <string name="colNameSummPay">Сумма платежа</string> -->
+<!--     <string name="colNameCredPay">Основной долг</string> -->
+<!--     <string name="colNameProcPay">Начисленные проценты</string> -->
+<!--     <string name="colNameComsPay">Ежемесячные комиссии</string> -->
+<!--     <string name="colNameRestPay">Остаток задолженности</string> -->
     
     <string-array name="colNameArray">
         <item>№ платежа</item>
@@ -59,4 +59,22 @@
     <string name="cbFirstOnlyProc">Первый платёж - проценты</string>
     <string name="tvInMonth">В месяц</string>
     <string name="tvOverPay">Переплата</string>
+    
+    <string-array name="languageArray">
+        <item>Системный</item> 
+        <item>Русский</item>
+        <item>Английский</item>
+    </string-array>
+    <string-array name="languageArrayVal">
+        <item>default</item> 
+        <item>ru</item>
+        <item>en_US</item>
+    </string-array>
+    
+    <string name="prefSelLang">Выбор языка</string>
+    <string name="prefLang">Язык</string>
+    <string name="prefSelTablSettings">Установка настроек таблицы</string>
+    <string name="prefTablSettings">Настройки таблицы</string>
+    <string name="prefSelTablCol">Выбор колонок таблицы</string>
+    <string name="prefTablCol">Колоноки таблицы</string>
 </resources>

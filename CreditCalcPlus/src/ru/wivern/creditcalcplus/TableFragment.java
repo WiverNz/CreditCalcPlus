@@ -6,10 +6,13 @@ import java.util.Calendar;
 import java.util.Collections;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.SparseArray;
@@ -24,7 +27,8 @@ import android.widget.TextView;
 
 // asynctask
 public class TableFragment extends Fragment implements IUpdateData {
-    /**
+	final static String ColPref = "col";
+	/**
      * The fragment argument representing the section number for this
      * fragment.
      */
@@ -33,7 +37,7 @@ public class TableFragment extends Fragment implements IUpdateData {
     private TableLayout tblHeader;
     private TableLayout tblMain;
     
-    private static final boolean[] m_columnVisible = new boolean[] {true, true, true, true, true, true, true, true};
+    private static boolean[] m_columnVisible = new boolean[] {true, true, true, true, true, false, true, false};
     
     private static final int[] m_columnWidths = new int[] {4, 10, 10, 10, 10, 10, 10, 10};
     private static final int m_rowHeight = 25;
@@ -73,6 +77,8 @@ public class TableFragment extends Fragment implements IUpdateData {
         
         MainActivity ma = (MainActivity) this.getActivity();
         ma.SetFragment(MainActivity.TABLE_FRAGMENT, this);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this.getActivity());
+        SetDefaultVals(sp);
 //		if(m_au != null)
 //		{
 //			m_au.cancel(false);
@@ -81,6 +87,20 @@ public class TableFragment extends Fragment implements IUpdateData {
         return rootView;
     }
 
+    private void SetDefaultVals(SharedPreferences sp)
+    {
+    	Editor spEditor = sp.edit();
+    	for(int i=0; i<m_colNamesArrayList.size(); i++)
+    	{
+    		String currColName = ColPref + i;
+			if(sp.contains(currColName) == false)
+			{
+				spEditor.putBoolean(currColName, m_columnVisible[i]);
+			}
+    	}
+    	spEditor.commit();
+    }
+    
 	@Override
 	public void UpdateInputData(UpdateStruct upd_struct) {
 		if(m_au != null)
@@ -415,5 +435,20 @@ public class TableFragment extends Fragment implements IUpdateData {
 				this.bottom	= length;
 			}
 		}
+	}
+	
+    @Override
+	public void onResume() {
+		super.onResume();
+		SharedPreferences sp;
+		sp = PreferenceManager.getDefaultSharedPreferences(this.getActivity());
+		for(int i=0; i<m_colNamesArrayList.size(); i++)
+		{
+			boolean currVal = sp.getBoolean(ColPref + i, m_columnVisible[i]);
+			m_columnVisible[i] = currVal;
+		}
+		CreateHeaderOfTable();
+		MainActivity ma = (MainActivity) this.getActivity();
+		UpdateInputData(ma.GetUpdateStruct());
 	}
 }

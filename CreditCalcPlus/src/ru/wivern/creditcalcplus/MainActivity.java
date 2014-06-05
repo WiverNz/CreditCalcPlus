@@ -8,8 +8,11 @@ import java.util.Locale;
 import ru.wivern.creditcalcplus.UpdateStruct.PartRepStruct;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -25,23 +28,13 @@ import android.view.inputmethod.InputMethodManager;
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, IUpdateData {
 	// comment
-	
+
 	// comment SkA
 	//comment denis
 	//comment denis
 	//comment DENIS 31.05
 	//comment DENIS 31.05+
 	//коммит
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putParcelable(UpdateStruct.class.getCanonicalName(), (Parcelable) m_data);
-	}
-
-	@Override
-	protected void onRestoreInstanceState(Bundle savedInstanceState) {
-		super.onRestoreInstanceState(savedInstanceState);
-	}
 	public static final int MAIN_FRAGMENT		= 0;
 	public static final int TABLE_FRAGMENT		= 1;
 	public static final int GRAPHIC_FRAGMENT	= 2;
@@ -84,6 +77,22 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public static final int NUMB_OF_COLUMNS				= 8;
     
+    SharedPreferences m_sp;
+    
+    public static String m_currLanguage = "default";
+    private Locale m_locale;
+    
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putParcelable(UpdateStruct.class.getCanonicalName(), (Parcelable) m_data);
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+	}
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -136,6 +145,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         	m_data = (UpdateStruct) savedInstanceState.getParcelable(UpdateStruct.class.getCanonicalName());
         }
 		Log.d(LOG_TAG, "MainActivity onCreate summa " + m_data.summa + " activity " + this.hashCode() + " size " + m_data.part.size());
+		m_sp = PreferenceManager.getDefaultSharedPreferences(this);
+		//m_sp.edit().clear().commit();
     }
 
 	private void SetTestData() {
@@ -622,5 +633,37 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 		retVal = retVal / n;
 
 		return retVal;
+	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		m_locale = new Locale(m_currLanguage);
+        Locale.setDefault(m_locale);
+        Configuration config = new Configuration();
+        config.locale = m_locale;
+        getBaseContext().getResources().updateConfiguration(config, null);   
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		m_currLanguage	= m_sp.getString("language", "default");
+		UpdateLanguage();
+	}
+
+	private void UpdateLanguage()
+	{	
+        if (m_currLanguage.equals("default")) {m_currLanguage=getResources().getConfiguration().locale.getCountry();}
+        m_locale = new Locale(m_currLanguage);
+        Locale.setDefault(m_locale);
+        Configuration config = new Configuration();
+        config.locale = m_locale;
+        getBaseContext().getResources().updateConfiguration(config, null);
+	}
+	
+	public UpdateStruct GetUpdateStruct()
+	{
+		return m_data;
 	}
 }

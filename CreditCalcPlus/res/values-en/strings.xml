@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">CreditCalcPlus</string>
+    <string name="action_settings">Preferences</string>
+    <string name="TITLE_MAIN">Main</string>
+    <string name="TITLE_TABLE">Table</string>
+    <string name="TITLE_GRAPHIC">Schedule</string>
+    <string name="TITLE_HISTORY">History</string>
+    <string name="tvTypeOfCredit">Type of loan</string>
+    <string name="rbAnnuity">Annuity</string>
+    <string name="rbVaried">Differentiated</string>
+    <string name="tvSumma">Credit</string>
+    <string name="tvPercent">Rate %</string>
+    <string name="tvPeriod">Term in months</string>
+    <string name="tvFirstDate">First payment</string>
+    <string name="tvComission">Months fee</string>
+    <string name="spComissionType">Fee</string>
+
+    <string-array name="spComissionTypeList">
+        <item>% loan amount</item>
+        <item>% of the outstanding debt</item>
+        <item>USD</item>
+    </string-array>
+
+    <string name="tvAnticipatedRepayment">Early redemption:</string>
+    <string name="tvTypeOfRepayment">View repayment</string>
+    <string name="rbPartRepPeriod">Decreasing term loan</string>
+    <string name="rbPartRepDebt">Decrease of the principal debt</string>
+    <string name="tvPartRepDate">date</string>
+    <string name="tvPartRepSumm">Sum</string>
+    <string name="btnSaveHistory">Save</string>
+    <string name="btnSettings">Preferences</string>
+    <string name="btnClose">Close</string>
+<!--     <string name="colNameN">no payment</string> -->
+<!--     <string name="colNameDatePay">payment date</string> -->
+<!--     <string name="colNameSummPay">payment</string> -->
+<!--     <string name="colNameCredPay">Principal debt</string> -->
+<!--     <string name="colNameProcPay">Accrued interest</string> -->
+<!--     <string name="colNameComsPay">Monthly fee</string> -->
+<!--     <string name="colNameRestPay">the Balance</string> -->
+
+    <string-array name="colNameArray">
+        <item>N</item>
+        <item>Date</item>
+        <item>Amount</item>
+        <item>Debt</item>
+        <item>Interest</item>
+        <item>Monthly fee</item>
+        <item>Balance</item>
+        <item>Part. repay</item>
+    </string-array>
+
+    <string name="btnAddPartRep">+</string>
+    <string name="btnClearPartRep">x</string>
+    <string name="btnDelPartRep">-</string>
+    <string name="textResult">Result:</string>
+    <string name="cbFirstOnlyProc">First payment - interest</string>
+    <string name="tvInMonth">Monthly</string>
+    <string name="tvOverPay">Overpayment</string>
+
+    <string-array name="languageArray">
+        <item>Default</item>
+        <item>Russian</item>
+        <item>English</item>
+    </string-array>
+    <string-array name="languageArrayVal">
+        <item>default</item>
+        <item>ru</item>
+        <item>en_US</item>
+    </string-array>
+    
+    <string name="prefSelLang">Select Language</string>
+    <string name="prefLang">Language</string>
+    <string name="prefSelTablSettings">Set table settings</string>
+    <string name="prefTablSettings">Table settings</string>
+    <string name="prefSelTablCol">Set columns of table</string>
+    <string name="prefTablCol">Columns of table</string>
+</resources>
