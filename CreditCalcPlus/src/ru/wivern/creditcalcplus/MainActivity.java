@@ -257,7 +257,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     	Object currFragment = null;
     	MainFragment mf = (MainFragment) m_listFragment[MAIN_FRAGMENT];
     	TableFragment tf = null;
-    	//GraphicFragment gf = null;
+    	GraphicFragment gf = null;
     	//HistoryFragment hf = null;
         switch (tab.getPosition())
         {
@@ -275,7 +275,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         	}
     		break;
         case GRAPHIC_FRAGMENT:
-        	//gf = (GraphicFragment) m_listFragment[GRAPHIC_FRAGMENT];
+        	gf = (GraphicFragment) m_listFragment[GRAPHIC_FRAGMENT];
+        	if(gf != null)
+        	{
+	        	currFragment = gf;
+	        	HideKeyboard();			// do not show the keyboard when open table fragment
+	        	UpdateFragmentData(currFragment);
+        	}
     		break;
         case HISTORY_FRAGMENT:
         	//hf = (HistoryFragment) m_listFragment[HISTORY_FRAGMENT];

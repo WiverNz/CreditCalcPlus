@@ -1,13 +1,24 @@
 package ru.wivern.creditcalcplus;
 
+import java.util.ArrayList;
+import java.util.Vector;
+
+import com.androidplot.xy.FillDirection;
+import com.androidplot.xy.LineAndPointFormatter;
+import com.androidplot.xy.SimpleXYSeries;
+import com.androidplot.xy.XYPlot;
+import com.androidplot.xy.XYSeries;
+
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
-public class GraphicFragment extends Fragment {
+
+public class GraphicFragment extends Fragment implements IUpdateData {
     /**
      * The fragment argument representing the section number for this
      * fragment.
@@ -18,6 +29,8 @@ public class GraphicFragment extends Fragment {
      * Returns a new instance of this fragment for the given section
      * number.
      */
+    private XYPlot plotXY;
+    
     public static GraphicFragment newInstance(int sectionNumber) {
     	//fragment=PlaceholderFragment.instantiate(getBaseContext(), MyClass1.class.getName());
     	GraphicFragment fragment = new GraphicFragment();
@@ -34,8 +47,76 @@ public class GraphicFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_graphic, container, false);
-        TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-        textView.setText(Integer.toString(getArguments().getInt(ARG_SECTION_NUMBER)));
+        plotXY = (XYPlot) rootView.findViewById(R.id.plotXY);
+//        TextView textView = (TextView) rootView.findViewById(R.id.section_label);
+//        textView.setText(Integer.toString(getArguments().getInt(ARG_SECTION_NUMBER)));
+        UpdateGraphic();
         return rootView;
     }
+    
+    public void UpdateGraphic()
+    {
+    	int i;
+		plotXY.clear();
+		MainActivity ma = (MainActivity) this.getActivity();
+		UpdateStruct upd_struct = ma.GetUpdateStruct();
+		ArrayList<SparseArray<Object>> curr_data = MainActivity
+				.UpdateArrayList(upd_struct);
+		// initialize our XYPlot reference:
+
+		// Create a couple arrays of y-values to plot:
+		Vector<Number> list_series1 = new Vector<Number>();
+		Vector<Number> list_series2 = new Vector<Number>();
+		for(i = 0; i< curr_data.size(); i++)
+		{
+			SparseArray<Object> spArray = curr_data.get(i);
+			double currPayCred	= (Double) spArray.get(MainActivity.SUMM_CREDIT_COLUMN);
+			double currProcent	= (Double) spArray.get(MainActivity.SUMM_PROCENT_COLUMN);
+			list_series1.add(currPayCred);
+			list_series2.add(currProcent);
+		}
+		//Number[] series1Numbers = { 1, 8, 5, 2, 7, 4 };
+		//Number[] series2Numbers = { 4, 6, 3, 8, 2, 10 };
+
+		// Turn the above arrays into XYSeries':
+		// SimpleXYSeries takes a List so turn our array into a List
+		XYSeries series1 = new SimpleXYSeries(list_series1,
+				SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, // Y_VALS_ONLY means use
+														// the element index as
+														// the x value
+				"Основной долг"); // Set the display title of the series
+
+		// same as above
+		XYSeries series2 = new SimpleXYSeries(list_series2,
+				SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, "Проценты");
+
+		// Create a formatter to use for drawing a series using
+		// LineAndPointRenderer:
+		LineAndPointFormatter series1Format = new LineAndPointFormatter(
+				Color.rgb(0, 200, 0), // line color
+				Color.rgb(0, 100, 0), // point color
+				null, null, FillDirection.BOTTOM); // fill color (none)
+
+		// add a new series' to the xyplot:
+		plotXY.addSeries(series1, series1Format);
+
+		// same as above:
+		plotXY.addSeries(
+				series2,
+				new LineAndPointFormatter(Color.rgb(0, 0, 200), Color.rgb(0, 0,
+						100), null, null, FillDirection.BOTTOM));
+
+		// reduce the number of range labels
+		plotXY.setTicksPerRangeLabel(3);
+
+		// by default, AndroidPlot displays developer guides to aid in laying
+		// out your plot.
+		// To get rid of them call disableAllMarkup():
+		// plotXY.disableAllMarkup();
+    }
+
+	@Override
+	public void UpdateInputData(UpdateStruct us) {
+		UpdateGraphic();
+	}
 }
