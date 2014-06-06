@@ -91,7 +91,7 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		UpdateMainData();
+//		UpdateMainData();
 	}
     @Override
 	public void onAttach(Activity activity) {

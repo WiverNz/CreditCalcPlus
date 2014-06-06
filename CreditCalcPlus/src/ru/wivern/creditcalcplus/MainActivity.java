@@ -270,7 +270,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         	{
 	        	currFragment = tf;
 	        	HideKeyboard();			// do not show the keyboard when open table fragment
-	        	mf.UpdateMainData();
+	        	if(mf != null)
+	        	{
+	        		mf.UpdateMainData();
+	        	}
 	        	UpdateFragmentData(currFragment);
         	}
     		break;
@@ -280,6 +283,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         	{
 	        	currFragment = gf;
 	        	HideKeyboard();			// do not show the keyboard when open table fragment
+	        	if(mf != null)
+	        	{
+	        		mf.UpdateMainData();
+	        	}
 	        	UpdateFragmentData(currFragment);
         	}
     		break;

@@ -70,6 +70,7 @@ public class TableFragment extends Fragment implements IUpdateData {
         tblHeader	= (TableLayout) rootView.findViewById(R.id.tbl_header);
         tblMain		= (TableLayout) rootView.findViewById(R.id.tbl_maintable);
         
+        m_colNamesArrayList.clear();
         Resources res = getResources();
         Collections.addAll(m_colNamesArrayList, res.getStringArray(R.array.colNameArray));
         

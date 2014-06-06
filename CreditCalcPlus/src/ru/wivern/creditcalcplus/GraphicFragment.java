@@ -59,6 +59,10 @@ public class GraphicFragment extends Fragment implements IUpdateData {
     	int i;
 		plotXY.clear();
 		MainActivity ma = (MainActivity) this.getActivity();
+		if(ma == null)
+		{
+			return;
+		}
 		UpdateStruct upd_struct = ma.GetUpdateStruct();
 		ArrayList<SparseArray<Object>> curr_data = MainActivity
 				.UpdateArrayList(upd_struct);
