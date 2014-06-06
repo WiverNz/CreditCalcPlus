@@ -83,20 +83,6 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
      * number.
      */
     
-	@Override
-	public void onDestroy() {
-		Log.d(MainActivity.LOG_TAG, "MainFragment onDestroy activity " + this.getActivity().hashCode() + " fragment " + this.hashCode());
-		super.onDestroy();
-	}
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		UpdateMainData();
-	}
-    @Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-	}
     public static MainFragment newInstance(int sectionNumber) {
     	//fragment=PlaceholderFragment.instantiate(getBaseContext(), MyClass1.class.getName());
     	MainFragment fragment = new MainFragment();
@@ -680,5 +666,22 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 	public void onNothingSelected(AdapterView<?> arg0) {
 
 	}
-	
+	@Override
+	public void onDestroy() {
+		Log.d(MainActivity.LOG_TAG, "MainFragment onDestroy activity " + this.getActivity().hashCode() + " fragment " + this.hashCode());
+		super.onDestroy();
+	}
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+	}
+    @Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+	}
+	@Override
+	public void onPause() {
+		super.onPause();
+		UpdateMainData();
+	}
 }

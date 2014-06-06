@@ -162,10 +162,23 @@ public class TableFragment extends Fragment implements IUpdateData {
 			NumberFormat double_format = NumberFormat.getNumberInstance();
 			double_format.setMaximumFractionDigits(2);
 			BordersInfo biCurr = new BordersInfo();
+			if(m_tf == null)
+			{
+				return;
+			}
 			Context context = m_tf.getActivity();
+			if(context == null)
+			{
+				return;
+			}
+			Resources res = context.getResources();
+			if(res == null)
+			{
+				return;
+			}
 			final int color1 = Color.WHITE;
-			final int color2 = context.getResources().getColor(R.color.blueback2);
-			final int color3 = context.getResources().getColor(R.color.blueback3);
+			final int color2 = res.getColor(R.color.blueback2);
+			final int color3 = res.getColor(R.color.blueback3);
 			int screenWidth = m_tf.getResources().getDisplayMetrics().widthPixels;
 			AddSummRow(context, wrapWrapTableRowParams, screenWidth);
 			Calendar currDayPay;
