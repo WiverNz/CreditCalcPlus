@@ -77,4 +77,7 @@
     <string name="prefTablSettings">Table settings</string>
     <string name="prefSelTablCol">Set columns of table</string>
     <string name="prefTablCol">Columns of table</string>
+    <string name="btnShowText">Load</string>
+    <string name="headerHistoryText">Set start date of load:</string>
+    <string name="ErrDateLoad">Set date</string>
 </resources>

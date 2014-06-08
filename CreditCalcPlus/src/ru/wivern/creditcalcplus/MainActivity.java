@@ -34,7 +34,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 	//comment denis
 	//comment DENIS 31.05
 	//comment DENIS 31.05+
-	//коммит
+	//коммит no changes
 	public static final int MAIN_FRAGMENT		= 0;
 	public static final int TABLE_FRAGMENT		= 1;
 	public static final int GRAPHIC_FRAGMENT	= 2;

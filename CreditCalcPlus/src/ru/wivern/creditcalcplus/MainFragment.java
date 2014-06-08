@@ -34,7 +34,6 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
 
 // need change datepicker to get edittext not from etCurrSelectedDateForm
 public class MainFragment extends Fragment implements OnClickListener, OnEditorActionListener, OnDateSetListener, OnTouchListener, IUpdateData, OnSeekBarChangeListener, OnItemSelectedListener {
@@ -208,8 +207,12 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 		case R.id.btnClearPartRep:
 			ClearPartViews();
 			break;
-		case R.id.btnSaveHistory:
-			Toast.makeText(getActivity(), "Пока не работает", Toast.LENGTH_SHORT).show();
+		case R.id.btnSaveHistory:;
+		    long sysDateLONG = (System.currentTimeMillis()/1000);
+			DB db = new DB(this.getActivity());
+			db.openWriteDB();
+			db.addRec(sysDateLONG, etSumma.getText().toString(), etPercent.getText().toString(), etPeriod.getText().toString(), etInMonth.getText().toString());
+			db.close();
 			break;
 		case R.id.btnSettings:
 			Intent intent = new Intent();

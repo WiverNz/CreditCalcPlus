@@ -78,4 +78,7 @@
     <string name="prefTablSettings">Настройки таблицы</string>
     <string name="prefSelTablCol">Выбор колонок таблицы</string>
     <string name="prefTablCol">Колоноки таблицы</string>
+    <string name="btnShowText">Load</string>
+    <string name="headerHistoryText">Введите начальную дату загрузки:</string>
+    <string name="ErrDateLoad">Введите дату</string>
 </resources>
