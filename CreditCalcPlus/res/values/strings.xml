@@ -52,4 +52,7 @@
     <string name="cbFirstOnlyProc">Первый платёж - проценты</string>
     <string name="tvInMonth">В месяц</string>
     <string name="tvOverPay">Переплата</string>
+    <string name="btnShowText">Load</string>
+    <string name="headerHistoryText">Введите начальную дату загрузки:</string>
+    <string name="ErrDateLoad">Введите дату</string>
 </resources>

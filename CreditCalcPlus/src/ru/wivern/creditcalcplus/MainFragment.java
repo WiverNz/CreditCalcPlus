@@ -199,8 +199,12 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 		case R.id.btnClearPartRep:
 			ClearPartViews();
 			break;
-		case R.id.btnSaveHistory:
-			Toast.makeText(getActivity(), "Пока не работает", Toast.LENGTH_SHORT).show();
+		case R.id.btnSaveHistory:;
+		    long sysDateLONG = (System.currentTimeMillis()/1000);
+			DB db = new DB(this.getActivity());
+			db.openWriteDB();
+			db.addRec(sysDateLONG, etSumma.getText().toString(), etPercent.getText().toString(), etPeriod.getText().toString(), etInMonth.getText().toString());
+			db.close();
 			break;
 		case R.id.btnSettings:
 			Toast.makeText(getActivity(), "Пока не работает", Toast.LENGTH_SHORT).show();
