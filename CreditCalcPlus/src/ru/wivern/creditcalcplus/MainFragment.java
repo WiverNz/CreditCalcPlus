@@ -44,6 +44,7 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
      */
     private static final String ARG_SECTION_NUMBER = "section_number";
     public static final int DATE_DIALOG_ID = 1;
+    // comment
     TableLayout	tblMData;
     RadioGroup	rgTypeOfCredit;
     EditText	etSumma;
