@@ -208,10 +208,10 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 			ClearPartViews();
 			break;
 		case R.id.btnSaveHistory:;
-		    long sysDateLONG = (System.currentTimeMillis()/1000);
+		    
 			DB db = new DB(this.getActivity());
 			db.openWriteDB();
-			db.addRec(sysDateLONG, etSumma.getText().toString(), etPercent.getText().toString(), etPeriod.getText().toString(), etInMonth.getText().toString());
+			db.addRec(GetUpdStructFromForm());
 			db.close();
 			break;
 		case R.id.btnSettings:
