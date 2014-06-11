@@ -1,16 +1,19 @@
 package ru.wivern.creditcalcplus;
 
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 import android.app.DatePickerDialog.OnDateSetListener;
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.TextUtils;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -20,10 +23,16 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ListView;
+import android.widget.ExpandableListView;
+import android.widget.SimpleCursorTreeAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
-public class HistoryFragment extends Fragment implements OnClickListener, OnTouchListener, OnDateSetListener, LoaderCallbacks<Cursor> {
+
+// Fix: load child twice (if there is no COLUMN_ID in COLUMNS_PART - error)
+// Add: load from item in list into main fragment.
+// Fix: error - could not stop activity because of db is open
+public class HistoryFragment extends Fragment implements OnClickListener, OnTouchListener, OnDateSetListener, LoaderCallbacks<Cursor>, SimpleCursorTreeAdapter.ViewBinder {
     /**
      * The fragment argument representing the section number for this
      * fragment.
@@ -31,12 +40,12 @@ public class HistoryFragment extends Fragment implements OnClickListener, OnTouc
     private static final String ARG_SECTION_NUMBER = "section_number";
     Button btnShow;
     EditText editDate;
-    ListView listHistory;
+    ExpandableListView listHistory;
     DatePickerFragment m_datePicker;
     long dateFrom;
-    SimpleCursorAdapter adapter;
+    MyCursorTreeAdapter m_adapter;
     DB db;
-    
+    private static final SimpleDateFormat m_dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
     /**
      * Returns a new instance of this fragment for the given section
      * number.
@@ -67,13 +76,23 @@ public class HistoryFragment extends Fragment implements OnClickListener, OnTouc
         Date date = Date.valueOf(editDate.getText().toString());
         dateFrom = date.getTime()/1000;
         m_datePicker = new DatePickerFragment();
-        listHistory = (ListView) rootView.findViewById(R.id.listHistory);
+        listHistory = (ExpandableListView) rootView.findViewById(R.id.listHistory);
         db = new DB(this.getActivity());
 
-        String[] from = new String[] { "rec"};
-		int[] to = new int[] { R.id.textHistoryList};
-        adapter = new SimpleCursorAdapter(this.getActivity(), R.layout.history_list, null, from, to, 0);
-        listHistory.setAdapter(adapter);
+        String from[] = new String[] {DB.COLUMN_ID, DB.COLUMN_DATE, DB.COLUMN_CREDIT, DB.COLUMN_PERIOD, DB.COLUMN_INTEREST};
+		int to[] = new int[] {R.id.tvCOLUMN_ID, R.id.tvCOLUMN_CURDATE, R.id.tvCOLUMN_CREDIT, R.id.tvCOLUMN_PERIOD, R.id.tvCOLUMN_INTEREST};
+		String childFrom[] = {DB.COLUMN_DATE_PR, DB.COLUMN_SUMM_PR};
+	    int childTo[] = new int[] {R.id.tvCOLUMN_DATE_PR, R.id.tvCOLUMN_SUMM_PR};
+	    m_adapter = new MyCursorTreeAdapter(this.getActivity(), this, R.layout.history_list, from, to, R.layout.history_list_part, childFrom, childTo);
+	    m_adapter.setViewBinder(this);
+	    listHistory.setAdapter(m_adapter);
+        
+//        Loader<Cursor> loader = getLoaderManager().getLoader(-1);
+//        if (loader != null && !loader.isReset()) {
+//        	this.getActivity().getSupportLoaderManager().restartLoader(-1, null, this);
+//        } else {
+//        	this.getActivity().getSupportLoaderManager().initLoader(-1, null, this);
+//        }
         
         return rootView;
     }
@@ -84,7 +103,7 @@ public class HistoryFragment extends Fragment implements OnClickListener, OnTouc
 		  case R.id.btnShow:
 			  if(editDate.getText().toString().equals("")){Toast.makeText(this.getActivity(), R.string.ErrDateLoad, Toast.LENGTH_LONG).show();break;}
 			  db.openReadDB();
-			  this.getActivity().getSupportLoaderManager().restartLoader(0, null, this);
+			  this.getActivity().getSupportLoaderManager().restartLoader(-1, null, this);
 			  break;
 		}
 	return;
@@ -126,17 +145,90 @@ public class HistoryFragment extends Fragment implements OnClickListener, OnTouc
 	}
 
 	@Override
-	public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
-		return new MyCursorLoader(this.getActivity(),db,dateFrom);
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		return new MyCursorLoader(this.getActivity(), db, dateFrom, id);
 	}
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		adapter.swapCursor(cursor);
+		int id = loader.getId();
+		if (id != -1) {
+			// child cursor
+			if (!cursor.isClosed()) {
+				SparseIntArray groupMap = m_adapter.getGroupMap();
+				try {
+					int groupPos = groupMap.get(id);
+					m_adapter.setChildrenCursor(groupPos, cursor);
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+			}
+		} else {
+			m_adapter.setGroupCursor(cursor);
+		}
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> arg0) {
 		
+	}
+	
+	@Override
+	public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+		Long currVal = (long) 0;
+		TextView currTV = null;
+		Calendar currCalendar = Calendar.getInstance();
+		switch(view.getId())
+		{
+		case R.id.tvCOLUMN_CURDATE:
+			currVal = cursor.getLong(columnIndex);
+			currTV = (TextView) view;
+			currCalendar.setTimeInMillis(currVal);
+			currTV.setText(m_dateFormat.format(currCalendar.getTime()));
+			return true;
+		case R.id.tvCOLUMN_DATE_PR:
+			currVal = cursor.getLong(columnIndex);
+			currTV = (TextView) view;
+			currCalendar.setTimeInMillis(currVal);
+			currTV.setText(m_dateFormat.format(currCalendar.getTime()));
+			return true;
+		}
+		return false;
+	}
+	
+	class MyCursorTreeAdapter extends SimpleCursorTreeAdapter {
+		private MainActivity mActivity;
+	    protected final SparseIntArray mGroupMap;
+	    private HistoryFragment mFragment;
+		public MyCursorTreeAdapter(Context context, Fragment fragment, int groupLayout,
+				String[] groupFrom, int[] groupTo, int childLayout,
+				String[] childFrom, int[] childTo) {
+			super(context, null, groupLayout, groupFrom, groupTo,
+					childLayout, childFrom, childTo);
+			mActivity	= (MainActivity) context;
+			mFragment	= (HistoryFragment) fragment;
+	        mGroupMap	= new SparseIntArray();
+		}
+
+		@Override
+		protected Cursor getChildrenCursor(Cursor groupCursor) {
+			// Logic to get the child cursor on the basis of selected group.
+			int groupPos = groupCursor.getPosition();
+			int groupId = groupCursor.getInt(groupCursor
+					.getColumnIndex(DB.COLUMN_ID));
+
+			mGroupMap.put(groupId, groupPos);
+			Loader<Cursor> loader = mActivity.getSupportLoaderManager().getLoader(groupId);
+			if (loader != null && !loader.isReset()) {
+				mActivity.getSupportLoaderManager().restartLoader(groupId, null, mFragment);
+			} else {
+				mActivity.getSupportLoaderManager().initLoader(groupId, null, mFragment);
+			}
+
+			return null;
+		}
+		public SparseIntArray getGroupMap() {
+			return mGroupMap;
+		}
 	}
 }

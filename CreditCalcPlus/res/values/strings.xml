@@ -81,4 +81,5 @@
     <string name="btnShowText">Load</string>
     <string name="headerHistoryText">Введите начальную дату загрузки:</string>
     <string name="ErrDateLoad">Введите дату</string>
+    <string name="ToastSave">Сохранено</string>
 </resources>

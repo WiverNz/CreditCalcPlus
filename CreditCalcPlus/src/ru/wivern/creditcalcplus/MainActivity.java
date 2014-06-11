@@ -27,14 +27,6 @@ import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, IUpdateData {
-	// comment
-
-	// comment SkA
-	//comment denis
-	//comment denis
-	//comment DENIS 31.05
-	//comment DENIS 31.05+
-	//коммит no changes
 	public static final int MAIN_FRAGMENT		= 0;
 	public static final int TABLE_FRAGMENT		= 1;
 	public static final int GRAPHIC_FRAGMENT	= 2;

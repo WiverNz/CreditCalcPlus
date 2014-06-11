@@ -62,4 +62,11 @@
 		<item name="android:textSize">14sp</item>
     </style>
     
+    <style name="HistoryList_TV">
+		<item name="android:textSize">12sp</item>
+    </style>
+    
+    <style name="HistoryListPart_TV">
+		<item name="android:textSize">12sp</item>
+    </style>
 </resources>

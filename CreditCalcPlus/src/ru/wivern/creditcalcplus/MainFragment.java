@@ -7,6 +7,7 @@ import java.util.Calendar;
 import android.app.Activity;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
@@ -34,6 +35,7 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
 
 // need change datepicker to get edittext not from etCurrSelectedDateForm
 public class MainFragment extends Fragment implements OnClickListener, OnEditorActionListener, OnDateSetListener, OnTouchListener, IUpdateData, OnSeekBarChangeListener, OnItemSelectedListener {
@@ -207,12 +209,14 @@ public class MainFragment extends Fragment implements OnClickListener, OnEditorA
 		case R.id.btnClearPartRep:
 			ClearPartViews();
 			break;
-		case R.id.btnSaveHistory:;
-		    
+		case R.id.btnSaveHistory:
 			DB db = new DB(this.getActivity());
 			db.openWriteDB();
 			db.addRec(GetUpdStructFromForm());
 			db.close();
+	        Resources res = getResources();
+	        String save_text = res.getString(R.string.ToastSave);
+			Toast.makeText(this.getActivity(), save_text, Toast.LENGTH_SHORT).show();
 			break;
 		case R.id.btnSettings:
 			Intent intent = new Intent();

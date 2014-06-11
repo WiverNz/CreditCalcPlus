@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE project>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:stretchColumns="*" >
+
+    <TableRow android:id="@+id/trTable" >
+
+        <TextView
+            android:id="@+id/tvCOLUMN_DATE_PR"
+            style="@style/HistoryListPart_TV"
+            android:layout_width="20dp"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/tvCOLUMN_SUMM_PR"
+            style="@style/HistoryListPart_TV"
+            android:layout_width="20dp"
+            android:layout_height="wrap_content" />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp" />
+    </TableRow>
+
+</TableLayout>
